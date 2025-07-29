@@ -47,6 +47,36 @@ function App() {
           tagline={heroContent.tagline}
           description={heroContent.description}
         />
+        <div style={{ width: '100%', textAlign: 'center', margin: '2.5rem 0' }}>
+          <a href="#signup" className="auth-btn" style={{
+            background: 'linear-gradient(90deg, #00B8D9 0%, #00E6F6 50%, #0099F7 100%)',
+            color: '#122C4A',
+            padding: '1rem 2.5rem',
+            borderRadius: '0.75rem',
+            textDecoration: 'none',
+            fontWeight: 700,
+            fontSize: '1.25rem',
+            margin: '0 1rem',
+            boxShadow: '0 4px 24px rgba(0,184,217,0.15)',
+            letterSpacing: '0.03em',
+            border: 'none',
+            transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s'
+          }}>Sign Up</a>
+          <a href="#login" className="auth-btn" style={{
+            background: 'linear-gradient(90deg, #0099F7 0%, #00E6F6 50%, #00B8D9 100%)',
+            color: '#122C4A',
+            padding: '1rem 2.5rem',
+            borderRadius: '0.75rem',
+            textDecoration: 'none',
+            fontWeight: 700,
+            fontSize: '1.25rem',
+            margin: '0 1rem',
+            boxShadow: '0 4px 24px rgba(0,184,217,0.15)',
+            letterSpacing: '0.03em',
+            border: 'none',
+            transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s'
+          }}>Login</a>
+        </div>
         <div className="cards-grid">
           {services.map((service) => (
             <Card

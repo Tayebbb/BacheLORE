@@ -1,3 +1,22 @@
+.auth-btn {
+  display: inline-block;
+  cursor: pointer;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  outline: none;
+}
+.auth-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(0,184,217,0.22);
+  background: linear-gradient(90deg, #00B8D9 0%, #00B8D9 100%);
+  color: #122C4A;
+}
+@media (max-width: 600px) {
+  .auth-btn {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    margin: 0.5rem 0.5rem;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@400;600&display=swap');
 
 body {
