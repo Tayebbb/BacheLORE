@@ -21,30 +21,7 @@ const Footer = () => (
           </svg>
         </a>
       </div>
-      <div style={{ width: '100%', textAlign: 'center', marginTop: '1rem' }}>
-        <a href="#signup" className="footer-auth-btn" style={{
-          background: '#00B8D9',
-          color: '#122C4A',
-          padding: '0.5rem 1.2rem',
-          borderRadius: '0.5rem',
-          textDecoration: 'none',
-          fontWeight: 600,
-          margin: '0 0.5rem',
-          boxShadow: '0 2px 8px rgba(0,184,217,0.08)',
-          transition: 'background 0.2s, color 0.2s'
-        }}>Sign Up</a>
-        <a href="#login" className="footer-auth-btn" style={{
-          background: '#00B8D9',
-          color: '#122C4A',
-          padding: '0.5rem 1.2rem',
-          borderRadius: '0.5rem',
-          textDecoration: 'none',
-          fontWeight: 600,
-          margin: '0 0.5rem',
-          boxShadow: '0 2px 8px rgba(0,184,217,0.08)',
-          transition: 'background 0.2s, color 0.2s'
-        }}>Login</a>
-      </div>
+     
     </div>
   </footer>
 );
