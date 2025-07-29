@@ -1,9 +1,13 @@
 
+
 import Navbar from "./components/Navbar";
 import bg1image from "./assets/bg1image.jpg";
 import Section from "./components/Section";
 import Card from "./components/Card";
 import Footer from "./components/Footer";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import { Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 
 const heroContent = {
@@ -36,7 +40,8 @@ const services = [
   }
 ];
 
-function App() {
+
+function HomePage() {
   return (
     <>
       <img src={bg1image} alt="Background" className="background-image" />
@@ -51,7 +56,7 @@ function App() {
             </div>
           </section>
           <div style={{ width: '100%', textAlign: 'center', margin: '2.5rem 0' }}>
-            <a href="#signup" className="auth-btn" style={{
+            <Link to="/signup" className="auth-btn" style={{
               background: 'linear-gradient(90deg, #00B8D9 0%, #00E6F6 50%, #0099F7 100%)',
               color: '#122C4A',
               padding: '1rem 2.5rem',
@@ -64,8 +69,8 @@ function App() {
               letterSpacing: '0.03em',
               border: 'none',
               transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s'
-            }}>Sign Up</a>
-            <a href="#login" className="auth-btn" style={{
+            }}>Sign Up</Link>
+            <Link to="/login" className="auth-btn" style={{
               background: 'linear-gradient(90deg, #0099F7 0%, #00E6F6 50%, #00B8D9 100%)',
               color: '#122C4A',
               padding: '1rem 2.5rem',
@@ -78,25 +83,35 @@ function App() {
               letterSpacing: '0.03em',
               border: 'none',
               transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s'
-            }}>Login</a>
+            }}>Login</Link>
           </div>
-        <div className="services-container">
-          <h2 className="services-title">Our Services</h2>
-          <div className="cards-grid">
-            {services.map((service) => (
-              <Card
-                key={service.title}
-                title={service.title}
-                description={service.description}
-                button={service.button}
-              />
-            ))}
+          <div className="services-container">
+            <h2 className="services-title">Our Services</h2>
+            <div className="cards-grid">
+              {services.map((service) => (
+                <Card
+                  key={service.title}
+                  title={service.title}
+                  description={service.description}
+                  button={service.button}
+                />
+              ))}
+            </div>
           </div>
-        </div>
         </main>
         <Footer />
       </div>
     </>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+    </Routes>
   );
 }
 
