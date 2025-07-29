@@ -2,9 +2,9 @@ import React from "react";
 
 const Footer = () => (
   <footer className="footer">
-    <div className="footer-content">
-      <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>© {new Date().getFullYear()} BacheLORE </span>
-      <div className="footer-social" style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+    <div className="footer-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      <span style={{ textAlign: 'center', marginBottom: '0.5rem' }}>© {new Date().getFullYear()} BacheLORE </span>
+      <div className="footer-social" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
         <a href="#" aria-label="Twitter" style={{ margin: '0 0.5rem' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.46 6c-.77.35-1.6.59-2.47.7a4.3 4.3 0 0 0 1.88-2.37c-.83.5-1.75.87-2.72 1.07A4.28 4.28 0 0 0 12 8.5c0 .34.04.67.1.99C8.09 9.36 4.84 7.6 2.67 4.9c-.37.64-.58 1.38-.58 2.17 0 1.5.77 2.83 1.94 3.61-.72-.02-1.4-.22-1.99-.55v.06c0 2.1 1.49 3.85 3.47 4.25-.36.1-.74.16-1.13.16-.28 0-.54-.03-.8-.08.54 1.7 2.1 2.94 3.95 2.97A8.6 8.6 0 0 1 2 19.54c-.34 0-.67-.02-1-.06A12.13 12.13 0 0 0 7.29 21c7.55 0 11.68-6.26 11.68-11.68 0-.18-.01-.36-.02-.54A8.18 8.18 0 0 0 24 4.59c-.77.34-1.6.58-2.47.7z" fill="#00B8D9"/>
@@ -21,7 +21,6 @@ const Footer = () => (
           </svg>
         </a>
       </div>
-     
     </div>
   </footer>
 );
