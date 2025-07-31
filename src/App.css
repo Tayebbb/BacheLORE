@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@400;600&display=swap');
 .services-container {
   background: rgba(18, 44, 74, 0.95);
   border-radius: 0;
@@ -38,7 +39,7 @@
     margin: 0.5rem 0.5rem;
   }
 }
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@400;600&display=swap');
+
 
 body {
   margin: 0;
