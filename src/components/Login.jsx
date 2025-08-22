@@ -3,21 +3,45 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!email || !password) {
+    setError("Please enter both email and password.");
+    return;
+  }
+
+  setError("");
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.user) {
+      alert("Login successful!");
+      console.log("Logged in user:", data.user);
+      setEmail("");
+      setPassword("");
     } else {
-      setError("");
-      alert("Login successful! (Demo only)");
+      setError(data.msg || "Invalid credentials");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Server error, try again later.");
+  }
+};
+
 
   return (
     <>
