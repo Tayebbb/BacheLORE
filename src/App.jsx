@@ -1,4 +1,3 @@
-// App.jsx
 import Navbar from "./components/Navbar";
 import bg1image from "./assets/bg1image.jpg";
 import Card from "./components/Card";
