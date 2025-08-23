@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
+import axios from "axios";
+
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -11,19 +13,45 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
-      setSuccess("");
-    } else if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      setSuccess("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!email || !password || !confirmPassword) {
+    setError("Please fill in all fields.");
+    setSuccess("");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    setSuccess("");
+    return;
+  }
+
+  setError("");
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, confirmPassword })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setSuccess(data.msg); 
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     } else {
-      setError("");
-      setSuccess("Sign up successful! (Demo only)");
+      setError(data.msg || "Signup failed");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Server error, try again later.");
+  }
+};
+
 
   return (
     <>
