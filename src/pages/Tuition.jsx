@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 const sampleJobs = new Array(8).fill(0).map((_,i)=>({
   id: 178000 + i,
@@ -50,10 +49,7 @@ export default function Tuition(){
                     <li><strong>Section:</strong> {job.section}</li>
                   </ul>
 
-                  <div className="d-flex justify-content-between align-items-center">
-                    <Link to={`/item/${job.id}`} className="link-primary">Details</Link>
-                    <div className="small text-muted">Offer</div>
-                  </div>
+                  {/* details removed per design; card shows offer fields only */}
                 </div>
               </article>
             </div>
