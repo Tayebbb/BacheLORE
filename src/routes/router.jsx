@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
 import Signup from '../pages/Signup.jsx'
+import Tuition from '../pages/Tuition.jsx'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 
@@ -17,7 +18,7 @@ export default function Router(){
         <Route path="/dashboard" element={<div>Dashboard</div>} />
         <Route path="/roommates" element={<div>Roommates</div>} />
         <Route path="/maids" element={<div>Maids</div>} />
-        <Route path="/tuition" element={<div>Tuition</div>} />
+  <Route path="/tuition" element={<Tuition/>} />
         <Route path="/bills" element={<div>Bills</div>} />
         <Route path="/marketplace" element={<div>Marketplace</div>} />
         <Route path="/item/:id" element={<div>ItemDetail</div>} />
