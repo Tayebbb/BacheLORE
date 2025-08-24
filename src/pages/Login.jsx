@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { login as authLogin } from '../lib/auth'
 
 export default function Login(){
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [status, setStatus] = useState('idle')
+
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const submit = async (e) => {
     e.preventDefault()
@@ -12,11 +16,17 @@ export default function Login(){
     await new Promise(r=>setTimeout(r,700))
     setStatus('success')
     // set simple client-side auth flag
-  try{ localStorage.setItem('bachelore_auth', '1') }catch(e){}
-  navigate('/home')
+  authLogin()
+  // redirect to next if provided, otherwise /home
+  try{
+    const params = new URLSearchParams(location.search)
+    const next = params.get('next')
+    if(next) navigate(next)
+    else navigate('/home')
+  }catch(err){
+    navigate('/home')
   }
-
-  const navigate = useNavigate()
+  }
 
   return (
     <main className="container py-5 auth-page">

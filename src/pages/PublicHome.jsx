@@ -1,16 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import announcements from '../data/announcements'
+import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
+import FEATURES from '../data/features'
+import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
+import FeatureCard from '../components/FeatureCard'
 
-const features = [
-  {k:'roommates', title:'Roommates', icon:'people-fill', text:'Find compatible roommates quickly with verified profiles.'},
-  {k:'maids', title:'Maids', icon:'broom', text:'Book trusted home help on-demand.'},
-  {k:'tuition', title:'Tuition', icon:'book', text:'Hire tutors for any subject near you.'},
-  {k:'bills', title:'Bills', icon:'calculator', text:'Split bills and track shared expenses easily.'},
-  {k:'marketplace', title:'Marketplace', icon:'cart', text:'Buy, sell, and trade items locally.'},
-  {k:'houserent', title:'House Rent', icon:'house', text:'Search available houses and rooms for rent near you.'}
-]
 
 export default function PublicHome(){
+  const trackRef = useCarouselAutoplay({ intervalMs: 3000, mobileThreshold: 768 })
+
   return (
     <main>
       <header className="container container-hero">
@@ -31,23 +30,10 @@ export default function PublicHome(){
           </div>
 
           <div className="col-lg-6 mt-4 mt-lg-0">
-            <div className="row g-3">
-              {features.map(f=> (
-                <div className="col-6" key={f.k}>
-                  <div className="feature-card p-3 gradient-card text-dark">
-                    <div className="d-flex align-items-start gap-3">
-                      <div style={{width:72, height:56, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                        <i className={`bi-${f.icon} fs-2 text-primary`} aria-hidden="true" />
-                        {f.k === 'maids' && (
-                          <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
-                        )}
-                      </div>
-                      <div>
-                        <h6 className="mb-1">{f.title}</h6>
-                        <p className="muted small mb-0">{f.text}</p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="row g-3">
+              {FEATURES.map(f=> (
+                <div className="col-6" key={f.key}>
+                  <FeatureCard feature={f} />
                 </div>
               ))}
             </div>
@@ -58,12 +44,60 @@ export default function PublicHome(){
       <section className="container py-5">
         <div className="row">
           <div className="col-lg-8">
-            <h3>How it works</h3>
-            <ol className="muted">
+            <h3 className="panel-title">How it works</h3>
+            <ol className="muted panel-sub">
               <li>Browse the demo features on this page.</li>
               <li>Sign in to save preferences and access full tools.</li>
               <li>Subscribe to remove limits and get premium services.</li>
             </ol>
+            <div className="mt-4 promo-panel">
+              <h5 className="panel-title">Why BacheLORE?</h5>
+              <p className="muted panel-sub">Everything a bachelor needs — trusted services, fast bookings, and local deals in one place.</p>
+
+              <div className="row g-2 mt-3 why-cards">
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-people-fill"/></div>
+                    <div className="fw-bold mt-2">Verified community</div>
+                    <div className="muted small">Profiles, reviews & safe matches</div>
+                  </div>
+                </div>
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-lightning-charge-fill"/></div>
+                    <div className="fw-bold mt-2">Fast bookings</div>
+                    <div className="muted small">Book maids, tutors and services in minutes</div>
+                  </div>
+                </div>
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-cart"/></div>
+                    <div className="fw-bold mt-2">Local deals</div>
+                    <div className="muted small">Buy & sell with nearby bachelors</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="promo-metrics">
+                <div className="metric">
+                  <div className="metric-value">12k+</div>
+                  <div className="muted small">active users</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">6</div>
+                  <div className="muted small">tools</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">4.8</div>
+                  <div className="muted small">avg rating</div>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2 mt-3">
+                <Link className="btn hero-cta" to="/subscription">Get Access — 99 Tk/month</Link>
+                <Link className="btn btn-ghost" to="/login">Try demo</Link>
+              </div>
+            </div>
           </div>
           <div className="col-lg-4">
             <div className="gradient-card p-3 text-dark">
@@ -73,6 +107,10 @@ export default function PublicHome(){
                 <div className="small"><strong>6</strong><div className="muted">tools</div></div>
                 <div className="small"><strong>99 Tk</strong><div className="muted">/month</div></div>
               </div>
+            </div>
+            <div className="mt-3">
+              <h5 className="panel-title">Announcements</h5>
+              <Announcements items={announcements} />
             </div>
           </div>
         </div>

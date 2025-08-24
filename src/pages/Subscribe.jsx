@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { isAuthed } from '../lib/auth'
 
 export default function Subscribe(){
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [bkash, setBkash] = useState('')
@@ -61,7 +63,15 @@ export default function Subscribe(){
 
                   <div className="d-flex align-items-center gap-3 mt-3">
                     <button className="btn hero-cta px-4 py-2" type="submit">{status==='loading' ? 'Processing...' : 'Activate Subscription'}</button>
-                    <Link className="btn btn-outline-secondary" to="/">Cancel</Link>
+                    <button type="button" className="btn btn-outline-secondary" onClick={(e)=>{
+                      e.preventDefault()
+                      // try to go back; if there is no meaningful history, fall back to home or public root
+                      if(window.history.length > 1){
+                        navigate(-1)
+                      } else {
+                        navigate(isAuthed() ? '/home' : '/')
+                      }
+                    }}>Cancel</button>
                   </div>
 
                   {status === 'success' && (

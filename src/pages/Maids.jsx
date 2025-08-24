@@ -1,9 +1,5 @@
 import React from 'react'
-
-const maids = [
-  {id:1, name:'Rina', skills:'Cleaning, Laundry', price:300, location:'Dhanmondi'},
-  {id:2, name:'Suma', skills:'Cooking, Cleaning', price:350, location:'Mirpur'}
-]
+import { MAIDS_SAMPLE as maids } from '../data/samples'
 
 export default function Maids(){
   return (
@@ -20,7 +16,12 @@ export default function Maids(){
               <div>
                 <h6 className="mb-0">{m.name}</h6>
                 <div className="muted small">{m.location} • {m.skills}</div>
-                <div className="mt-2 fw-bold">{m.price} Tk / day</div>
+                <div className="mt-2 d-flex align-items-center gap-3">
+                  <div className="fw-bold">{m.price} Tk / day</div>
+                  <div>
+                    <button className="btn hero-cta btn-sm" style={{padding:'.45rem .9rem'}}>Book</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

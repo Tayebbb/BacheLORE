@@ -1,29 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { BRAND } from '../assets/brand'
+import { isAuthed, logout as authLogout, onAuthChange, offAuthChange } from '../lib/auth'
 
 export default function Navbar(){
   const navRef = useRef(null)
-  const [authed, setAuthed] = useState(()=>{
-    try{ return !!localStorage.getItem('bachelore_auth') }catch(e){ return false }
-  })
+  const [authed, setAuthed] = useState(()=> isAuthed())
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleLogout = () => {
+    authLogout()
+    setAuthed(false)
+    navigate('/')
+  }
 
   useEffect(()=>{
     const el = navRef.current
-    if(!el) return
-    const onScroll = () => {
-      if(window.scrollY > 8) el.classList.add('scrolled')
-      else el.classList.remove('scrolled')
+    if(el){
+      const onScroll = () => {
+        if(window.scrollY > 8) el.classList.add('scrolled')
+        else el.classList.remove('scrolled')
+      }
+      window.addEventListener('scroll', onScroll, {passive:true})
+      return ()=> window.removeEventListener('scroll', onScroll)
     }
-    window.addEventListener('scroll', onScroll, {passive:true})
-    return ()=> window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(()=>{
+    const onChange = ()=> setAuthed(isAuthed())
+    onAuthChange(onChange)
+    return ()=> offAuthChange(onChange)
   }, [])
 
   return (
   <nav ref={navRef} className="navbar navbar-expand-lg sticky-top navbar-custom navbar-dark" style={{backdropFilter: 'blur(6px)', background: BRAND.colors.primary, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center gap-2 text-white" to="/">
+  <Link className="navbar-brand d-flex align-items-center gap-2 text-white" to={isAuthed() ? '/home' : '/'}>
           <img src="/logo.png" alt="BacheLORE" width={36} height={36} style={{objectFit:'contain', borderRadius:6}} />
           <span style={{fontWeight:700, color:'#fff'}}>BacheLORE</span>
         </Link>
@@ -39,7 +52,7 @@ export default function Navbar(){
             <li className="nav-item"><Link className="nav-link text-white" to="/tuition">Tuition</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/bills">Bills</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/marketplace">Marketplace</Link></li>
-            {!authed ? (
+            {(!authed || location.pathname === '/') ? (
               <>
                 <li className="nav-item mt-2 mt-lg-0">
                   <Link className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" to="/login">Login</Link>
@@ -50,7 +63,7 @@ export default function Navbar(){
               </>
             ) : (
               <li className="nav-item mt-2 mt-lg-0 ms-lg-2">
-                <button className="btn btn-sm btn-ghost" onClick={()=>{ try{ localStorage.removeItem('bachelore_auth') }catch(e){}; setAuthed(false); navigate('/') }}>Logout</button>
+                <button className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" onClick={handleLogout}>Logout</button>
               </li>
             )}
           </ul>
