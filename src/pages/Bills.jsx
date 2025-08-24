@@ -103,10 +103,9 @@ export default function Bills(){
             <h6>Quick tips</h6>
             <ul className="muted small mb-0">
               <li>Add named segments (e.g. Groceries) using the name + amount fields and press the <strong>+</strong> button (or press Enter) to add them.</li>
-              <li>When segments exist their sum will be used as the total for tax/tip calculations.</li>
+              <li>When segments exist their sum will be used as the total for calculations.</li>
               <li>Use the Remove button on a segment to delete it; the total will update automatically.</li>
               <li>After adding segments, choose the number of <strong>People</strong> below to split the final amount.</li>
-              <li>Enter tax and tip as percentages; results update instantly.</li>
               <li>Round the per-person amount when collecting cash.</li>
             </ul>
           </div>
