@@ -6,7 +6,6 @@ import "../App.css";
 import AuthCard from './AuthCard'
 import axios from "axios";
 
-
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,13 +21,11 @@ const Signup = () => {
     setSuccess("");
     return;
   }
-
   if (password !== confirmPassword) {
     setError("Passwords do not match.");
     setSuccess("");
     return;
   }
-
   setError("");
   try {
     const res = await fetch("http://localhost:5000/api/auth/signup", {
@@ -52,7 +49,6 @@ const Signup = () => {
     setError("Server error, try again later.");
   }
 };
-
 
   return (
     <>
@@ -91,5 +87,4 @@ const Signup = () => {
     </>
   );
 };
-
 export default Signup;
