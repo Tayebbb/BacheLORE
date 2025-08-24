@@ -30,17 +30,20 @@ export default function Home(){
     track.addEventListener('focusin', pause)
     track.addEventListener('focusout', resume)
 
-    let cards = track.querySelectorAll('.testimonial-card')
-    let gap = parseFloat(getComputedStyle(track).gap) || 16
-    let cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-    let visible = Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
-    let maxIndex = Math.max(0, cards.length - visible)
+  let cards = track.querySelectorAll('.testimonial-card')
+  let gap = parseFloat(getComputedStyle(track).gap) || 16
+  let cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
+  // on narrow/mobile screens we want to always show/move 1 card at a time
+  let isMobileView = track.clientWidth < 768
+  let visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
+  let maxIndex = Math.max(0, cards.length - visible)
 
     const recompute = ()=>{
       cards = track.querySelectorAll('.testimonial-card')
       gap = parseFloat(getComputedStyle(track).gap) || 16
       cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-      visible = Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
+      isMobileView = track.clientWidth < 768
+      visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
       maxIndex = Math.max(0, cards.length - visible)
     }
 
