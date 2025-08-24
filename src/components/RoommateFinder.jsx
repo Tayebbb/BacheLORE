@@ -3,45 +3,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
-
-const demoListings = [
-  {
-    id: 1,
-    title: "Private room near Dhanmondi 27",
-    location: "Dhanmondi, Dhaka",
-    rent: 9000,
-    sharing: "Private",
-    genderPref: "Male",
-    amenities: ["Wi‑Fi", "Furnished", "Attached Bath"]
-  },
-  {
-    id: 2,
-    title: "Shared room in Mirpur 10",
-    location: "Mirpur, Dhaka",
-    rent: 4500,
-    sharing: "Shared (2)",
-    genderPref: "Any",
-    amenities: ["Wi‑Fi", "Common Kitchen"]
-  },
-  {
-    id: 3,
-    title: "Master bed at Bashundhara R/A",
-    location: "Bashundhara, Dhaka",
-    rent: 14000,
-    sharing: "Private",
-    genderPref: "Female",
-    amenities: ["AC", "Balcony", "Lift", "Security"]
-  },
-  {
-    id: 4,
-    title: "Cozy shared in Uttara Sec 11",
-    location: "Uttara, Dhaka",
-    rent: 6000,
-    sharing: "Shared (3)",
-    genderPref: "Any",
-    amenities: ["Generator", "Wi‑Fi"]
-  }
-];
+import { ROOMMATE_LISTINGS as demoListings } from '../data/samples'
 
 export default function RoommateFinder() {
   const [q, setQ] = useState("");

@@ -1,93 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import announcements from '../data/announcements'
+import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
 
-const features = [
-  { key: 'roommates', title: 'Roommates', text: 'Find compatible roommates effortlessly.', icon: 'people-fill' },
-  { key: 'maids', title: 'Maids', text: 'Book trusted home help instantly.', icon: 'broom' },
-  { key: 'tuition', title: 'Tuition', text: 'Hire tutors for any subject on-demand.', icon: 'book' },
-  { key: 'bills', title: 'Bills', text: 'Split bills with friends and track expenses.', icon: 'calculator' },
-  { key: 'marketplace', title: 'Marketplace', text: 'Buy, sell, or trade items with local bachelors.', icon: 'cart' },
-  { key: 'houserent', title: 'House Rent', text: 'Search available houses and rooms for rent near you.', icon: 'house' }
-]
+import FEATURES from '../data/features'
+import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
+import FeatureCard from '../components/FeatureCard'
 
 export default function Home(){
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle')
   const [message, setMessage] = useState('')
   
-  const trackRef = useRef(null)
-
-  useEffect(()=>{
-    const track = trackRef.current || document.querySelector('.testimonials-static')
-    if(!track) return
-
-    let paused = false
-    const pause = ()=> paused = true
-    const resume = ()=> paused = false
-
-    track.addEventListener('mouseenter', pause)
-    track.addEventListener('mouseleave', resume)
-    track.addEventListener('focusin', pause)
-    track.addEventListener('focusout', resume)
-
-  let cards = track.querySelectorAll('.testimonial-card')
-  let gap = parseFloat(getComputedStyle(track).gap) || 16
-  let cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-  // on narrow/mobile screens we want to always show/move 1 card at a time
-  let isMobileView = track.clientWidth < 768
-  let visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
-  let maxIndex = Math.max(0, cards.length - visible)
-
-    const recompute = ()=>{
-      cards = track.querySelectorAll('.testimonial-card')
-      gap = parseFloat(getComputedStyle(track).gap) || 16
-      cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-      isMobileView = track.clientWidth < 768
-      visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
-      maxIndex = Math.max(0, cards.length - visible)
-    }
-
-    let idx = 0
-    const scrollToIndex = (i, smooth = true)=>{
-      const left = Math.round(i * (cardWidth + gap))
-      try{ track.scrollTo({left, behavior: smooth ? 'smooth' : 'auto'}) }catch(e){ track.scrollLeft = left }
-    }
-
-    // initial snap to 0 to avoid half-cut cards on mount
-    scrollToIndex(0, false)
-
-    const step = ()=>{
-      if(paused) return
-      recompute()
-      idx++
-      if(idx > maxIndex) idx = 0
-      scrollToIndex(idx, true)
-    }
-
-    const interval = setInterval(step, 3000)
-
-    let resizeTimer = null
-    const onResize = ()=>{
-      clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(()=>{
-        recompute()
-        // ensure current index is within bounds
-        if(idx > maxIndex) idx = 0
-        scrollToIndex(idx, true)
-      }, 120)
-    }
-    window.addEventListener('resize', onResize)
-
-    return ()=>{
-      clearInterval(interval)
-      window.removeEventListener('resize', onResize)
-      track.removeEventListener('mouseenter', pause)
-      track.removeEventListener('mouseleave', resume)
-      track.removeEventListener('focusin', pause)
-      track.removeEventListener('focusout', resume)
-    }
-  }, [])
+  const trackRef = useCarouselAutoplay({ intervalMs: 3000, mobileThreshold: 768 })
 
   return (
     <main>
@@ -138,24 +63,9 @@ export default function Home(){
 
       <section id="features" className="container py-5">
         <div className="row g-4">
-          {features.map(f=> (
+          {FEATURES.map(f=> (
             <div className="col-6 col-md-4" key={f.key}>
-              <Link to={`/${f.key}`} className="text-decoration-none">
-                <div className="feature-card p-3 gradient-card text-dark">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="d-flex align-items-center">
-                      <i className={`bi-${f.icon} fs-3 text-primary`}></i>
-                      {f.key === 'maids' && (
-                        <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
-                      )}
-                    </div>
-                    <div>
-                      <h6 className="mb-0">{f.title}</h6>
-                      <p className="muted small mb-0">{f.text}</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <FeatureCard feature={f} />
             </div>
           ))}
         </div>
@@ -194,14 +104,7 @@ export default function Home(){
           </div>
           <div className="col-lg-4 mt-4 mt-lg-0">
             <h5 className="panel-title">Announcements</h5>
-            <div className="announcements-panel">
-              {announcements.map(a=> (
-                <div key={a.id} className="announcement-item">
-                  <div className="announcement-title">{a.title}</div>
-                  <div className="announcement-meta muted small">{a.body}</div>
-                </div>
-              ))}
-            </div>
+            <Announcements items={announcements} />
           </div>
         </div>
       </section>

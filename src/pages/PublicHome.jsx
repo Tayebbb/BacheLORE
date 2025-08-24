@@ -1,86 +1,14 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import announcements from '../data/announcements'
+import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
+import FEATURES from '../data/features'
+import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
+import FeatureCard from '../components/FeatureCard'
 
-const features = [
-  {k:'roommates', title:'Roommates', icon:'people-fill', text:'Find compatible roommates quickly with verified profiles.'},
-  {k:'maids', title:'Maids', icon:'broom', text:'Book trusted home help on-demand.'},
-  {k:'tuition', title:'Tuition', icon:'book', text:'Hire tutors for any subject near you.'},
-  {k:'bills', title:'Bills', icon:'calculator', text:'Split bills and track shared expenses easily.'},
-  {k:'marketplace', title:'Marketplace', icon:'cart', text:'Buy, sell, and trade items locally.'},
-  {k:'houserent', title:'House Rent', icon:'house', text:'Search available houses and rooms for rent near you.'}
-]
 
 export default function PublicHome(){
-  const trackRef = useRef(null)
-
-  useEffect(()=>{
-    const track = trackRef.current || document.querySelector('.testimonials-static')
-    if(!track) return
-
-    let paused = false
-    const pause = ()=> paused = true
-    const resume = ()=> paused = false
-
-    track.addEventListener('mouseenter', pause)
-    track.addEventListener('mouseleave', resume)
-    track.addEventListener('focusin', pause)
-    track.addEventListener('focusout', resume)
-
-    let cards = track.querySelectorAll('.testimonial-card')
-    let gap = parseFloat(getComputedStyle(track).gap) || 16
-    let cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-    let isMobileView = track.clientWidth < 768
-    let visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
-    let maxIndex = Math.max(0, cards.length - visible)
-
-    const recompute = ()=>{
-      cards = track.querySelectorAll('.testimonial-card')
-      gap = parseFloat(getComputedStyle(track).gap) || 16
-      cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
-      isMobileView = track.clientWidth < 768
-      visible = isMobileView ? 1 : Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
-      maxIndex = Math.max(0, cards.length - visible)
-    }
-
-    let idx = 0
-    const scrollToIndex = (i, smooth = true)=>{
-      const left = Math.round(i * (cardWidth + gap))
-      try{ track.scrollTo({left, behavior: smooth ? 'smooth' : 'auto'}) }catch(e){ track.scrollLeft = left }
-    }
-
-    scrollToIndex(0, false)
-
-    const step = ()=>{
-      if(paused) return
-      recompute()
-      idx++
-      if(idx > maxIndex) idx = 0
-      scrollToIndex(idx, true)
-    }
-
-    const interval = setInterval(step, 3000)
-
-    let resizeTimer = null
-    const onResize = ()=>{
-      clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(()=>{
-        recompute()
-        if(idx > maxIndex) idx = 0
-        scrollToIndex(idx, true)
-      }, 120)
-    }
-    window.addEventListener('resize', onResize)
-
-    return ()=>{
-      clearInterval(interval)
-      window.removeEventListener('resize', onResize)
-      track.removeEventListener('mouseenter', pause)
-      track.removeEventListener('mouseleave', resume)
-      track.removeEventListener('focusin', pause)
-      track.removeEventListener('focusout', resume)
-    }
-  }, [])
+  const trackRef = useCarouselAutoplay({ intervalMs: 3000, mobileThreshold: 768 })
 
   return (
     <main>
@@ -102,23 +30,10 @@ export default function PublicHome(){
           </div>
 
           <div className="col-lg-6 mt-4 mt-lg-0">
-            <div className="row g-3">
-              {features.map(f=> (
-                <div className="col-6" key={f.k}>
-                  <div className="feature-card p-3 gradient-card text-dark">
-                    <div className="d-flex align-items-start gap-3">
-                      <div style={{width:72, height:56, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                        <i className={`bi-${f.icon} fs-2 text-primary`} aria-hidden="true" />
-                        {f.k === 'maids' && (
-                          <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
-                        )}
-                      </div>
-                      <div>
-                        <h6 className="mb-1">{f.title}</h6>
-                        <p className="muted small mb-0">{f.text}</p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="row g-3">
+              {FEATURES.map(f=> (
+                <div className="col-6" key={f.key}>
+                  <FeatureCard feature={f} />
                 </div>
               ))}
             </div>
@@ -195,14 +110,7 @@ export default function PublicHome(){
             </div>
             <div className="mt-3">
               <h5 className="panel-title">Announcements</h5>
-              <div className="announcements-panel">
-                {announcements.map(a=> (
-                  <div key={a.id} className="announcement-item">
-                    <div className="announcement-title">{a.title}</div>
-                    <div className="announcement-meta muted small">{a.body}</div>
-                  </div>
-                ))}
-              </div>
+              <Announcements items={announcements} />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { login as authLogin } from '../lib/auth'
 
 export default function Login(){
   const [email, setEmail] = useState('')
@@ -12,8 +13,7 @@ export default function Login(){
     await new Promise(r=>setTimeout(r,700))
     setStatus('success')
     // set simple client-side auth flag
-  try{ localStorage.setItem('bachelore_auth', '1') }catch(e){}
-  try{ window.dispatchEvent(new Event('bachelore_auth_change')) }catch(e){}
+  authLogin()
   navigate('/home')
   }
 

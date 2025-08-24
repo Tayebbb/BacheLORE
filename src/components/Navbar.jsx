@@ -1,19 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { BRAND } from '../assets/brand'
+import { isAuthed, logout as authLogout, onAuthChange, offAuthChange } from '../lib/auth'
 
 export default function Navbar(){
   const navRef = useRef(null)
-  const [authed, setAuthed] = useState(()=>{
-    try{ return !!localStorage.getItem('bachelore_auth') }catch(e){ return false }
-  })
+  const [authed, setAuthed] = useState(()=> isAuthed())
   const navigate = useNavigate()
   const location = useLocation()
 
   const handleLogout = () => {
-    try{ localStorage.removeItem('bachelore_auth') }catch(e){}
-    // notify other listeners/windows
-    try{ window.dispatchEvent(new Event('bachelore_auth_change')) }catch(e){}
+    authLogout()
     setAuthed(false)
     navigate('/')
   }
@@ -31,16 +28,9 @@ export default function Navbar(){
   }, [])
 
   useEffect(()=>{
-    const onAuthChange = ()=>{
-      try{ setAuthed(!!localStorage.getItem('bachelore_auth')) }catch(e){ setAuthed(false) }
-    }
-    // listen to cross-window storage events and our custom event
-    window.addEventListener('storage', onAuthChange)
-    window.addEventListener('bachelore_auth_change', onAuthChange)
-    return ()=>{
-      window.removeEventListener('storage', onAuthChange)
-      window.removeEventListener('bachelore_auth_change', onAuthChange)
-    }
+    const onChange = ()=> setAuthed(isAuthed())
+    onAuthChange(onChange)
+    return ()=> offAuthChange(onChange)
   }, [])
 
   return (

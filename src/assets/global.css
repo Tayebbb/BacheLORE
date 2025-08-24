@@ -41,6 +41,9 @@ h1,h2,h3,h4{font-family: 'Poppins', 'Inter', sans-serif;color:var(--dark)}
 
 .feature-card{transition:transform .28s cubic-bezier(.22,.9,.3,1), box-shadow .28s; border-radius:16px;}
 .feature-card:hover{transform:translateY(-8px); box-shadow:0 12px 30px rgba(12,10,60,.08)}
+/* locked state shows muted overlay/icon for gated features */
+.feature-card.locked{opacity:0.9}
+.feature-card.locked .muted{opacity:0.65}
 
 .testimonial{background:linear-gradient(180deg,rgba(108,99,255,.08),transparent); border-radius:12px; padding:1rem}
 
@@ -117,6 +120,33 @@ footer{box-shadow: 0 -8px 40px rgba(8,12,40,0.06);}
 .auth-card .form-label{font-weight:600; color:rgba(15,23,42,0.8)}
 .auth-card .hero-cta{background: linear-gradient(90deg, var(--primary), #7b7cff); color:white; border-radius:999px; padding:.6rem 1.1rem; box-shadow: 0 8px 20px rgba(108,99,255,0.12)}
 .auth-card .small.muted{color:rgba(15,23,42,0.5)}
+
+/* Reusable styled input used across Login/Signup forms (extracted from inline styles) */
+.auth-input-styled{
+  background: rgba(240,242,245,0.97);
+  border: 1.5px solid #00B8D9;
+  border-radius: 0.7rem;
+  font-weight: 500;
+  font-size: 1.13rem;
+  color: #122C4A;
+  box-shadow: 0 2px 8px rgba(0,184,217,0.08);
+  height: 2.7rem;
+  padding: 1rem 1.2rem;
+}
+
+/* Reusable submit button style for auth forms (extracted from inline styles) */
+.auth-submit-btn{
+  width: 100%;
+  background: linear-gradient(90deg, #00B8D9 0%, #00E6F6 50%, #0099F7 100%);
+  color: #122C4A;
+  font-weight: 700;
+  font-size: 1.08rem;
+  border-radius: 0.7rem;
+  box-shadow: 0 4px 24px rgba(0,184,217,0.15);
+  border: none;
+  margin-top: 8px;
+  padding: 0.85rem 0;
+}
 
 /* Announcements / Promo panels */
 .announcements-panel{

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from '../pages/Home.jsx'
 import PublicHome from '../pages/PublicHome.jsx'
 import Login from '../pages/Login.jsx'
@@ -14,17 +14,11 @@ import Roommates from '../pages/Roommates.jsx'
 import Maids from '../pages/Maids.jsx'
 import HouseRent from '../pages/HouseRent.jsx'
 
+import { isAuthed } from '../lib/auth'
+
 export default function Router(){
   const PrivateRoute = ({ children }) => {
-    let authed = false
-    try{ authed = !!localStorage.getItem('bachelore_auth') }catch(e){ authed = false }
-    return authed ? children : <LoginRedirect />
-  }
-
-  const LoginRedirect = () => {
-    // simple redirect element to /login using window.location to ensure immediate navigation
-    if(typeof window !== 'undefined') window.location.pathname = '/login'
-    return null
+    return isAuthed() ? children : <Navigate to="/login" replace />
   }
   return (
     <>

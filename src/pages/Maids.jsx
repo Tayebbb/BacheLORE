@@ -1,9 +1,5 @@
 import React from 'react'
-
-const maids = [
-  {id:1, name:'Rina', skills:'Cleaning, Laundry', price:300, location:'Dhanmondi'},
-  {id:2, name:'Suma', skills:'Cooking, Cleaning', price:350, location:'Mirpur'}
-]
+import { MAIDS_SAMPLE as maids } from '../data/samples'
 
 export default function Maids(){
   return (
