@@ -34,20 +34,22 @@ export default function PublicHome(){
             <div className="row g-3">
               {features.map(f=> (
                 <div className="col-6" key={f.k}>
-                  <div className="feature-card p-3 gradient-card text-dark">
-                    <div className="d-flex align-items-start gap-3">
-                      <div style={{width:72, height:56, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                        <i className={`bi-${f.icon} fs-2 text-primary`} aria-hidden="true" />
-                        {f.k === 'maids' && (
-                          <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
-                        )}
-                      </div>
-                      <div>
-                        <h6 className="mb-1">{f.title}</h6>
-                        <p className="muted small mb-0">{f.text}</p>
+                  <Link to={`/${f.k}`} style={{textDecoration:'none'}}>
+                    <div className="feature-card p-3 gradient-card text-dark" style={{cursor:'pointer'}}>
+                      <div className="d-flex align-items-start gap-3">
+                        <div style={{width:72, height:56, display:'flex', alignItems:'center', justifyContent:'center'}}>
+                          <i className={`bi-${f.icon} fs-2 text-primary`} aria-hidden="true" />
+                          {f.k === 'maids' && (
+                            <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
+                          )}
+                        </div>
+                        <div>
+                          <h6 className="mb-1">{f.title}</h6>
+                          <p className="muted small mb-0">{f.text}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>

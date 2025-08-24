@@ -6,7 +6,7 @@ export default function CardGrid({items}){
     <div className="row g-4">
       {items.map(i=> (
         <div className="col-6 col-md-4" key={i.key}>
-          <FeatureCard {...i} />
+          <FeatureCard {...i} route={i.key} />
         </div>
       ))}
     </div>
