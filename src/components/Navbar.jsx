@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { BRAND } from '../assets/brand'
 
 export default function Navbar(){
@@ -8,16 +8,39 @@ export default function Navbar(){
     try{ return !!localStorage.getItem('bachelore_auth') }catch(e){ return false }
   })
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleLogout = () => {
+    try{ localStorage.removeItem('bachelore_auth') }catch(e){}
+    // notify other listeners/windows
+    try{ window.dispatchEvent(new Event('bachelore_auth_change')) }catch(e){}
+    setAuthed(false)
+    navigate('/')
+  }
 
   useEffect(()=>{
     const el = navRef.current
-    if(!el) return
-    const onScroll = () => {
-      if(window.scrollY > 8) el.classList.add('scrolled')
-      else el.classList.remove('scrolled')
+    if(el){
+      const onScroll = () => {
+        if(window.scrollY > 8) el.classList.add('scrolled')
+        else el.classList.remove('scrolled')
+      }
+      window.addEventListener('scroll', onScroll, {passive:true})
+      return ()=> window.removeEventListener('scroll', onScroll)
     }
-    window.addEventListener('scroll', onScroll, {passive:true})
-    return ()=> window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(()=>{
+    const onAuthChange = ()=>{
+      try{ setAuthed(!!localStorage.getItem('bachelore_auth')) }catch(e){ setAuthed(false) }
+    }
+    // listen to cross-window storage events and our custom event
+    window.addEventListener('storage', onAuthChange)
+    window.addEventListener('bachelore_auth_change', onAuthChange)
+    return ()=>{
+      window.removeEventListener('storage', onAuthChange)
+      window.removeEventListener('bachelore_auth_change', onAuthChange)
+    }
   }, [])
 
   return (
@@ -39,7 +62,7 @@ export default function Navbar(){
             <li className="nav-item"><Link className="nav-link text-white" to="/tuition">Tuition</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/bills">Bills</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/marketplace">Marketplace</Link></li>
-            {!authed ? (
+            {(!authed || location.pathname === '/') ? (
               <>
                 <li className="nav-item mt-2 mt-lg-0">
                   <Link className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" to="/login">Login</Link>
@@ -50,7 +73,7 @@ export default function Navbar(){
               </>
             ) : (
               <li className="nav-item mt-2 mt-lg-0 ms-lg-2">
-                <button className="btn btn-sm btn-ghost" onClick={()=>{ try{ localStorage.removeItem('bachelore_auth') }catch(e){}; setAuthed(false); navigate('/') }}>Logout</button>
+                <button className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" onClick={handleLogout}>Logout</button>
               </li>
             )}
           </ul>

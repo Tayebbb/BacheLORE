@@ -20,7 +20,12 @@ export default function Maids(){
               <div>
                 <h6 className="mb-0">{m.name}</h6>
                 <div className="muted small">{m.location} • {m.skills}</div>
-                <div className="mt-2 fw-bold">{m.price} Tk / day</div>
+                <div className="mt-2 d-flex align-items-center gap-3">
+                  <div className="fw-bold">{m.price} Tk / day</div>
+                  <div>
+                    <button className="btn hero-cta btn-sm" style={{padding:'.45rem .9rem'}}>Book</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

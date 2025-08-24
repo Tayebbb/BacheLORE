@@ -13,6 +13,7 @@ export default function Login(){
     setStatus('success')
     // set simple client-side auth flag
   try{ localStorage.setItem('bachelore_auth', '1') }catch(e){}
+  try{ window.dispatchEvent(new Event('bachelore_auth_change')) }catch(e){}
   navigate('/home')
   }
 

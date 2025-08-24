@@ -15,25 +15,36 @@ import Maids from '../pages/Maids.jsx'
 import HouseRent from '../pages/HouseRent.jsx'
 
 export default function Router(){
+  const PrivateRoute = ({ children }) => {
+    let authed = false
+    try{ authed = !!localStorage.getItem('bachelore_auth') }catch(e){ authed = false }
+    return authed ? children : <LoginRedirect />
+  }
+
+  const LoginRedirect = () => {
+    // simple redirect element to /login using window.location to ensure immediate navigation
+    if(typeof window !== 'undefined') window.location.pathname = '/login'
+    return null
+  }
   return (
     <>
   <Navbar />
       <Routes>
   <Route path="/" element={<PublicHome/>} />
-  <Route path="/home" element={<Home/>} />
+  <Route path="/home" element={<PrivateRoute><Home/></PrivateRoute>} />
   <Route path="/login" element={<Login/>} />
   <Route path="/signup" element={<Signup/>} />
         <Route path="/dashboard" element={<div>Dashboard</div>} />
-  <Route path="/roommates" element={<Roommates/>} />
-  <Route path="/maids" element={<Maids/>} />
-  <Route path="/tuition" element={<Tuition/>} />
-  <Route path="/bills" element={<Bills/>} />
-  <Route path="/marketplace" element={<Marketplace/>} />
+  <Route path="/roommates" element={<PrivateRoute><Roommates/></PrivateRoute>} />
+  <Route path="/maids" element={<PrivateRoute><Maids/></PrivateRoute>} />
+  <Route path="/tuition" element={<PrivateRoute><Tuition/></PrivateRoute>} />
+  <Route path="/bills" element={<PrivateRoute><Bills/></PrivateRoute>} />
+  <Route path="/marketplace" element={<PrivateRoute><Marketplace/></PrivateRoute>} />
         <Route path="/item/:id" element={<div>ItemDetail</div>} />
   <Route path="/post" element={<div>PostItem</div>} />
   <Route path="/profile" element={<div>Profile</div>} />
-  <Route path="/houserent" element={<HouseRent/>} />
-  <Route path="/subscription" element={<Subscribe/>} />
+  <Route path="/houserent" element={<PrivateRoute><HouseRent/></PrivateRoute>} />
+  <Route path="/subscription" element={<PrivateRoute><Subscribe/></PrivateRoute>} />
         <Route path="*" element={<div>NotFound</div>} />
       </Routes>
       <Footer />
