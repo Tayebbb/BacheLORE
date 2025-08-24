@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import announcements from '../data/announcements'
 import { Link } from 'react-router-dom'
 
 const features = [
@@ -161,15 +162,47 @@ export default function Home(){
       </section>
 
       <section className="container py-5">
-        <h3>What users say</h3>
-        <div className="testimonials-static mt-3 d-flex gap-3" ref={trackRef}>
-          {/* testimonials will be controlled by autoplay effect below */}
-          <div className="testimonial-card testimonial p-3">"BacheLORE helped me find a roommate in 3 days." — Ali</div>
-          <div className="testimonial-card testimonial p-3">"The marketplace is so easy to use." — Samira</div>
-          <div className="testimonial-card testimonial p-3">"I love the bills splitter — lifesaver." — Omar</div>
-          <div className="testimonial-card testimonial p-3">"Tutors responded fast and were affordable." — Fahad</div>
-          <div className="testimonial-card testimonial p-3">"Found great deals on furniture here." — Nadia</div>
-          <div className="testimonial-card testimonial p-3">"Customer support helped me quickly." — Bilal</div>
+        <div className="row">
+          <div className="col-lg-8">
+            <h3 className="panel-title">Recent activity</h3>
+            <p className="muted panel-sub">Your latest trips through the app — quick access to recent searches, bookings, and listings.</p>
+            <div className="mt-3 activity-panel">
+              <ul className="list-group">
+                <li className="list-group-item">
+                  <div>
+                    <div className="fw-bold">Booked maid: Cleaning for 2 hours</div>
+                    <div className="muted small">Today • 10:30 AM</div>
+                  </div>
+                  <Link to="/maids" className="btn btn-sm btn-ghost">View</Link>
+                </li>
+                <li className="list-group-item">
+                  <div>
+                    <div className="fw-bold">Posted item for sale: Used desk</div>
+                    <div className="muted small">Yesterday • Marketplace</div>
+                  </div>
+                  <Link to="/marketplace" className="btn btn-sm btn-ghost">Open</Link>
+                </li>
+                <li className="list-group-item">
+                  <div>
+                    <div className="fw-bold">Found roommate: Khalid</div>
+                    <div className="muted small">3 days ago • Roommates</div>
+                  </div>
+                  <Link to="/roommates" className="btn btn-sm btn-ghost">Open</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="col-lg-4 mt-4 mt-lg-0">
+            <h5 className="panel-title">Announcements</h5>
+            <div className="announcements-panel">
+              {announcements.map(a=> (
+                <div key={a.id} className="announcement-item">
+                  <div className="announcement-title">{a.title}</div>
+                  <div className="announcement-meta muted small">{a.body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import announcements from '../data/announcements'
 import { Link } from 'react-router-dom'
 
 const features = [
@@ -128,12 +129,60 @@ export default function PublicHome(){
       <section className="container py-5">
         <div className="row">
           <div className="col-lg-8">
-            <h3>How it works</h3>
-            <ol className="muted">
+            <h3 className="panel-title">How it works</h3>
+            <ol className="muted panel-sub">
               <li>Browse the demo features on this page.</li>
               <li>Sign in to save preferences and access full tools.</li>
               <li>Subscribe to remove limits and get premium services.</li>
             </ol>
+            <div className="mt-4 promo-panel">
+              <h5 className="panel-title">Why BacheLORE?</h5>
+              <p className="muted panel-sub">Everything a bachelor needs — trusted services, fast bookings, and local deals in one place.</p>
+
+              <div className="row g-2 mt-3 why-cards">
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-people-fill"/></div>
+                    <div className="fw-bold mt-2">Verified community</div>
+                    <div className="muted small">Profiles, reviews & safe matches</div>
+                  </div>
+                </div>
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-lightning-charge-fill"/></div>
+                    <div className="fw-bold mt-2">Fast bookings</div>
+                    <div className="muted small">Book maids, tutors and services in minutes</div>
+                  </div>
+                </div>
+                <div className="col-12 col-md-4">
+                  <div className="card p-3 text-center h-100">
+                    <div className="why-card-icon"><i className="bi-cart"/></div>
+                    <div className="fw-bold mt-2">Local deals</div>
+                    <div className="muted small">Buy & sell with nearby bachelors</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="promo-metrics">
+                <div className="metric">
+                  <div className="metric-value">12k+</div>
+                  <div className="muted small">active users</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">6</div>
+                  <div className="muted small">tools</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">4.8</div>
+                  <div className="muted small">avg rating</div>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2 mt-3">
+                <Link className="btn hero-cta" to="/subscription">Get Access — 99 Tk/month</Link>
+                <Link className="btn btn-ghost" to="/login">Try demo</Link>
+              </div>
+            </div>
           </div>
           <div className="col-lg-4">
             <div className="gradient-card p-3 text-dark">
@@ -142,6 +191,17 @@ export default function PublicHome(){
               <div className="d-flex gap-2 mt-2">
                 <div className="small"><strong>6</strong><div className="muted">tools</div></div>
                 <div className="small"><strong>99 Tk</strong><div className="muted">/month</div></div>
+              </div>
+            </div>
+            <div className="mt-3">
+              <h5 className="panel-title">Announcements</h5>
+              <div className="announcements-panel">
+                {announcements.map(a=> (
+                  <div key={a.id} className="announcement-item">
+                    <div className="announcement-title">{a.title}</div>
+                    <div className="announcement-meta muted small">{a.body}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
