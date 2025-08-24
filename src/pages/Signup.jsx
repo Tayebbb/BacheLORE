@@ -36,7 +36,7 @@ export default function Signup(){
               </div>
               <div className="d-flex gap-2 align-items-center">
                 <button className="btn hero-cta" type="submit">{status==='loading' ? 'Creating...' : 'Create account'}</button>
-                <Link to="/login" className="muted small">Already have an account?</Link>
+                <Link to="/login" className="muted small d-flex align-items-center ms-2">Already have an account?</Link>
               </div>
               {status === 'success' && (
                 <div className="alert alert-success mt-3">Account created (mock)</div>

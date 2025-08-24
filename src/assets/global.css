@@ -58,6 +58,10 @@ h1,h2,h3,h4{font-family: 'Poppins', 'Inter', sans-serif;color:var(--dark)}
 .navbar-custom .nav-link:hover{opacity:.95;text-decoration:underline}
 .btn-cta-white{background:#fff;color:var(--dark);border-radius:10px;font-weight:600}
 
+/* ensure nav buttons in collapsed mobile menu are comfortable full-width items */
+.navbar-nav .btn{padding:.5rem .9rem; border-radius:10px}
+.navbar-nav .nav-item + .nav-item{margin-top:0}
+
 /* Feature card gradients */
 .gradient-card{border-radius:16px; background: linear-gradient(90deg, rgba(108,99,255,0.06), #fff);}
 .gradient-card:hover{background: linear-gradient(90deg, rgba(108,99,255,0.12), #f8f9ff); transform: translateY(-6px); box-shadow:0 12px 30px rgba(12,10,60,.06)}
@@ -114,12 +118,86 @@ footer{box-shadow: 0 -8px 40px rgba(8,12,40,0.06);}
 .auth-card .hero-cta{background: linear-gradient(90deg, var(--primary), #7b7cff); color:white; border-radius:999px; padding:.6rem 1.1rem; box-shadow: 0 8px 20px rgba(108,99,255,0.12)}
 .auth-card .small.muted{color:rgba(15,23,42,0.5)}
 
-/* Testimonials carousel */
-.testimonials-static{display:flex; gap:1rem; padding:0.5rem 0}
-.testimonial-card{flex: 1 1 0; min-width:0; box-sizing:border-box; position:relative}
+/* Subscription page: allow a wider auth card with larger gutters */
+.subscribe-page .auth-card{max-width:1100px; padding:2.5rem; border-radius:18px}
+.subscribe-page .auth-card h3{font-size:1.8rem}
+.subscribe-page .auth-card .form-control{padding:.75rem 1rem}
+.subscribe-page .auth-card .hero-cta{padding:.9rem 1.6rem; font-size:1rem}
 
-/* Focused testimonial style: subtle emphasis for center card; remove colored glow */
-.testimonial-card{transition:none; opacity:1; transform:none}
+/* price badge positioned bottom-left inside the subscription card */
+.subscribe-page .auth-card{position:relative}
+.subscribe-page .subscribe-price{position:absolute; left:28px; bottom:28px; background:transparent}
+.subscribe-page .subscribe-price .h3{font-size:1.6rem}
+
+@media (max-width: 991px){
+  .subscribe-page .subscribe-price{position:static; margin-top:1.25rem}
+}
+
+/* Bills page tidy-up */
+.bills-page .auth-card{max-width:920px; padding:2.25rem}
+.bills-page .form-control{height:46px}
+.bills-page .form-control-lg{height:56px; font-size:1.05rem}
+.bills-page .grand{font-size:1.3rem}
+.bills-page .per{font-size:1.05rem}
+.bills-page .form-label{margin-bottom:.35rem}
+.bills-page .gradient-card{min-height:140px}
+
+/* segments UI inside bills page */
+.bills-page .segment-item{padding:.6rem .75rem; border-radius:10px; background: rgba(108,99,255,0.02); border:1px solid rgba(108,99,255,0.04)}
+.bills-page .segment-item .btn{min-width:88px}
+
+/* Testimonials responsive list */
+.testimonials-static{
+  display:flex;
+  gap:1rem;
+  padding:0; /* ensure exact widths line up so visible count matches */
+  align-items:stretch;
+  justify-content:flex-start; /* align to start so cards don't get centered/cut off */
+  /* allow horizontal scroll on very small screens */
+  overflow-x:auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.testimonials-static::-webkit-scrollbar{height:8px}
+.testimonials-static::-webkit-scrollbar-thumb{background:rgba(12,24,60,0.08); border-radius:8px}
+
+.testimonial-card{
+  flex: 0 0 100%;
+  max-width:100%;
+  min-width:260px;
+  box-sizing:border-box;
+  position:relative;
+  scroll-snap-align: start;
+  transition: transform .22s cubic-bezier(.2,.9,.3,1), box-shadow .22s, border-color .22s;
+  background: linear-gradient(180deg, rgba(108,99,255,0.08), #ffffff);
+  border-radius:14px;
+  padding:1.25rem 1.5rem;
+  box-shadow: 0 14px 40px rgba(12,24,60,0.12);
+  border: 1px solid rgba(108,99,255,0.10);
+  color: var(--dark);
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+/* small screens: 1 card visible (can scroll) */
+@media (max-width: 575px){
+  .testimonial-card{flex: 0 0 92%; max-width:92%;}
+}
+
+/* medium screens: 2 cards */
+@media (min-width: 576px) and (max-width: 991px){
+  .testimonial-card{flex: 0 0 calc(50% - .5rem); max-width: calc(50% - .5rem);} 
+}
+
+/* large screens: 3 cards */
+@media (min-width: 992px){
+  .testimonial-card{flex: 0 0 calc((100% - 2rem) / 3); max-width: calc((100% - 2rem) / 3);} 
+}
+
+/* hover emphasis */
+.testimonial-card:hover{transform: translateY(-8px); box-shadow: 0 26px 56px rgba(12,24,60,0.16); border-color: rgba(108,99,255,0.16)}
+
+/* remove legacy pseudo styles if present */
 .testimonial-card::after{display:none}
 
 /* Responsive: on small screens show 1 card, on medium show 2 */
