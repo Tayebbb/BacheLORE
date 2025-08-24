@@ -35,8 +35,12 @@ export default function Navbar(){
             <li className="nav-item"><Link className="nav-link text-white" to="/tuition">Tuition</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/bills">Bills</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/marketplace">Marketplace</Link></li>
-            <li className="nav-item ms-2"><Link className="btn btn-sm btn-cta-white" to="/login">Login</Link></li>
-            <li className="nav-item ms-2"><Link className="btn btn-sm btn-cta-white" to="/signup">Sign up</Link></li>
+            <li className="nav-item mt-2 mt-lg-0">
+              <Link className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" to="/login">Login</Link>
+            </li>
+            <li className="nav-item mt-2 mt-lg-0 ms-lg-2">
+              <Link className="btn btn-sm btn-cta-white w-100 w-lg-auto text-center" to="/signup">Sign up</Link>
+            </li>
           </ul>
         </div>
       </div>

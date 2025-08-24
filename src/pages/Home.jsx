@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const features = [
@@ -15,6 +15,76 @@ export default function Home(){
   const [status, setStatus] = useState('idle')
   const [message, setMessage] = useState('')
   
+  const trackRef = useRef(null)
+
+  useEffect(()=>{
+    const track = trackRef.current || document.querySelector('.testimonials-static')
+    if(!track) return
+
+    let paused = false
+    const pause = ()=> paused = true
+    const resume = ()=> paused = false
+
+    track.addEventListener('mouseenter', pause)
+    track.addEventListener('mouseleave', resume)
+    track.addEventListener('focusin', pause)
+    track.addEventListener('focusout', resume)
+
+    let cards = track.querySelectorAll('.testimonial-card')
+    let gap = parseFloat(getComputedStyle(track).gap) || 16
+    let cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
+    let visible = Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
+    let maxIndex = Math.max(0, cards.length - visible)
+
+    const recompute = ()=>{
+      cards = track.querySelectorAll('.testimonial-card')
+      gap = parseFloat(getComputedStyle(track).gap) || 16
+      cardWidth = cards[0]?.getBoundingClientRect().width || track.clientWidth
+      visible = Math.max(1, Math.floor((track.clientWidth + gap) / (cardWidth + gap)))
+      maxIndex = Math.max(0, cards.length - visible)
+    }
+
+    let idx = 0
+    const scrollToIndex = (i, smooth = true)=>{
+      const left = Math.round(i * (cardWidth + gap))
+      try{ track.scrollTo({left, behavior: smooth ? 'smooth' : 'auto'}) }catch(e){ track.scrollLeft = left }
+    }
+
+    // initial snap to 0 to avoid half-cut cards on mount
+    scrollToIndex(0, false)
+
+    const step = ()=>{
+      if(paused) return
+      recompute()
+      idx++
+      if(idx > maxIndex) idx = 0
+      scrollToIndex(idx, true)
+    }
+
+    const interval = setInterval(step, 3000)
+
+    let resizeTimer = null
+    const onResize = ()=>{
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(()=>{
+        recompute()
+        // ensure current index is within bounds
+        if(idx > maxIndex) idx = 0
+        scrollToIndex(idx, true)
+      }, 120)
+    }
+    window.addEventListener('resize', onResize)
+
+    return ()=>{
+      clearInterval(interval)
+      window.removeEventListener('resize', onResize)
+      track.removeEventListener('mouseenter', pause)
+      track.removeEventListener('mouseleave', resume)
+      track.removeEventListener('focusin', pause)
+      track.removeEventListener('focusout', resume)
+    }
+  }, [])
+
   return (
     <main>
       <header className="container container-hero">
@@ -84,10 +154,14 @@ export default function Home(){
 
       <section className="container py-5">
         <h3>What users say</h3>
-        <div className="testimonials-static mt-3 d-flex gap-3">
+        <div className="testimonials-static mt-3 d-flex gap-3" ref={trackRef}>
+          {/* testimonials will be controlled by autoplay effect below */}
           <div className="testimonial-card testimonial p-3">"BacheLORE helped me find a roommate in 3 days." — Ali</div>
           <div className="testimonial-card testimonial p-3">"The marketplace is so easy to use." — Samira</div>
           <div className="testimonial-card testimonial p-3">"I love the bills splitter — lifesaver." — Omar</div>
+          <div className="testimonial-card testimonial p-3">"Tutors responded fast and were affordable." — Fahad</div>
+          <div className="testimonial-card testimonial p-3">"Found great deals on furniture here." — Nadia</div>
+          <div className="testimonial-card testimonial p-3">"Customer support helped me quickly." — Bilal</div>
         </div>
       </section>
 
