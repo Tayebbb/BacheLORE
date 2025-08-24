@@ -7,7 +7,7 @@ const features = [
   { key: 'tuition', title: 'Tuition', text: 'Hire tutors for any subject on-demand.', icon: 'book' },
   { key: 'bills', title: 'Bills', text: 'Split bills with friends and track expenses.', icon: 'calculator' },
   { key: 'marketplace', title: 'Marketplace', text: 'Buy, sell, or trade items with local bachelors.', icon: 'cart' },
-  { key: 'profile', title: 'Profile', text: 'Manage your preferences and personal info.', icon: 'person-circle' }
+  { key: 'houserent', title: 'House Rent', text: 'Search available houses and rooms for rent near you.', icon: 'house' }
 ]
 
 export default function Home(){
@@ -94,7 +94,7 @@ export default function Home(){
             <h1 className="mt-4">BacheLORE – Your Ultimate Bachelor Life Companion</h1>
             <p className="muted">All the tools, services, and guidance you need to live smarter, easier, and better.</p>
             <div className="mt-4 d-flex gap-2">
-              <a className="btn hero-cta" href="#pricing">Get Access – $1.99/month</a>
+              <Link className="btn hero-cta" to="/subscription">Get Access – 99 Tk/month</Link>
               <a className="btn hero-cta" href="#features">Explore Features</a>
             </div>
           </div>
@@ -139,7 +139,12 @@ export default function Home(){
               <Link to={`/${f.key}`} className="text-decoration-none">
                 <div className="feature-card p-3 gradient-card text-dark">
                   <div className="d-flex align-items-center gap-3">
-                    <i className={`bi-${f.icon} fs-3 text-primary`}></i>
+                    <div className="d-flex align-items-center">
+                      <i className={`bi-${f.icon} fs-3 text-primary`}></i>
+                      {f.key === 'maids' && (
+                        <span className="badge bg-white text-primary ms-2" title="cleaning"><i className="bi-bucket"/></span>
+                      )}
+                    </div>
                     <div>
                       <h6 className="mb-0">{f.title}</h6>
                       <p className="muted small mb-0">{f.text}</p>

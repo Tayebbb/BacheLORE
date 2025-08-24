@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Login(){
   const [email, setEmail] = useState('')
@@ -11,7 +11,12 @@ export default function Login(){
     setStatus('loading')
     await new Promise(r=>setTimeout(r,700))
     setStatus('success')
+    // set simple client-side auth flag
+  try{ localStorage.setItem('bachelore_auth', '1') }catch(e){}
+  navigate('/home')
   }
+
+  const navigate = useNavigate()
 
   return (
     <main className="container py-5 auth-page">
@@ -31,7 +36,7 @@ export default function Login(){
               </div>
               <div className="d-flex gap-2 align-items-center">
                 <button className="btn hero-cta" type="submit">{status==='loading' ? 'Signing in...' : 'Sign in'}</button>
-                <Link to="/signup" className="muted small">Don't have an account?</Link>
+                <Link to="/signup" className="muted small d-flex align-items-center ms-2">Don't have an account?</Link>
               </div>
               {status === 'success' && (
                 <div className="alert alert-success mt-3">Signed in (mock)</div>
