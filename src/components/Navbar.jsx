@@ -36,7 +36,7 @@ export default function Navbar(){
   return (
   <nav ref={navRef} className="navbar navbar-expand-lg sticky-top navbar-custom navbar-dark" style={{backdropFilter: 'blur(6px)', background: BRAND.colors.primary, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center gap-2 text-white" to="/">
+  <Link className="navbar-brand d-flex align-items-center gap-2 text-white" to={isAuthed() ? '/home' : '/'}>
           <img src="/logo.png" alt="BacheLORE" width={36} height={36} style={{objectFit:'contain', borderRadius:6}} />
           <span style={{fontWeight:700, color:'#fff'}}>BacheLORE</span>
         </Link>
