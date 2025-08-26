@@ -1,54 +1,51 @@
-
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
-import AuthCard from './AuthCard'
-import axios from "axios";
+import AuthCard from './AuthCard';
+import api from "../api";  
 
 const Signup = () => {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Submitting signup form...");
 
-  if (!email || !password || !confirmPassword) {
-    setError("Please fill in all fields.");
-    setSuccess("");
-    return;
-  }
-  if (password !== confirmPassword) {
-    setError("Passwords do not match.");
-    setSuccess("");
-    return;
-  }
-  setError("");
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, confirmPassword })
-    });
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      setSuccess("");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setSuccess("");
+      return;
+    }
 
-    const data = await res.json();
+    setError("");
+    try {
+      const res = await api.post("/signup", {  
+        fullName,
+        email,
+        password,
+      });
 
-    if (res.ok) {
-      setSuccess(data.msg); 
+      setSuccess(res.data.msg);
+      setFullName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-    } else {
-      setError(data.msg || "Signup failed");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.msg || "Signup failed");
     }
-  } catch (err) {
-    console.error(err);
-    setError("Server error, try again later.");
-  }
-};
+  };
 
   return (
     <>
@@ -57,6 +54,13 @@ const Signup = () => {
         <Navbar />
         <AuthCard title="Sign Up">
             <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="auth-input signup-gradient-input auth-input-styled"
+              />
               <input
                 type="email"
                 placeholder="Email"
@@ -87,4 +91,5 @@ const Signup = () => {
     </>
   );
 };
+
 export default Signup;

@@ -1,77 +1,80 @@
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import api from "../api"; 
 
-import React, { useState } from "react";
-import Navbar from "./Navbar";
-import bg1image from "../assets/bg1image.jpg";
-import "../App.css";
-import AuthCard from './AuthCard'
-import axios from "axios";
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const submit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    setError('');
 
-  if (!email || !password) {
-    setError("Please enter both email and password.");
-    return;
-  }
-
-  setError("");
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.user) {
-      alert("Login successful!");
-      console.log("Logged in user:", data.user);
-      setEmail("");
-      setPassword("");
-    } else {
-      setError(data.msg || "Invalid credentials");
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      setStatus('idle');
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    setError("Server error, try again later.");
-  }
-};
 
+    try {
+      const res = await api.post("/login", { email, password });
+
+      if (res.data.user) {
+        setStatus('success');
+        console.log("Logged in user:", res.data.user);
+
+        const params = new URLSearchParams(location.search);
+        const next = params.get('next');
+        navigate(next || '/home');
+      } else {
+        setStatus('error');
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setStatus('error');
+      setError(err.response?.data?.msg || 'Login failed. Please try again.');
+    }
+  };
 
   return (
-    <>
-      <img src={bg1image} alt="Background" className="background-image" />
-      <div className="app-container">
-        <Navbar />
-        <AuthCard title="Login">
-          <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
-              />
-              {error && <div className="auth-error">{error}</div>}
-              <button type="submit" className="auth-btn signup-gradient-btn auth-submit-btn">Login</button>
+    <main className="container py-5 auth-page">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card p-4 auth-card">
+            <h3 className="mb-3">Welcome back</h3>
+            <p className="muted">Sign in to access your dashboard and services.</p>
+            <form onSubmit={submit} className="mt-3">
+              <div className="mb-2">
+                <label className="form-label small">Email</label>
+                <input className="form-control" value={email} onChange={e => setEmail(e.target.value)} />
+              </div>
+              <div className="mb-3">
+                <label className="form-label small">Password</label>
+                <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} />
+              </div>
+              <div className="d-flex gap-2 align-items-center">
+                <button className="btn hero-cta" type="submit">
+                  {status === 'loading' ? 'Signing in...' : 'Sign in'}
+                </button>
+                <Link to="/signup" className="muted small d-flex align-items-center ms-2">Don't have an account?</Link>
+              </div>
+              {status === 'success' && (
+                <div className="alert alert-success mt-3">Login successful!</div>
+              )}
+              {error && (
+                <div className="alert alert-danger mt-3">{error}</div>
+              )}
             </form>
-        </AuthCard>
+          </div>
+        </div>
       </div>
-    </>
+    </main>
   );
-};
-
-export default Login;
+}
