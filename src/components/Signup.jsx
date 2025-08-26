@@ -3,10 +3,16 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
+<<<<<<< Updated upstream
 import axios from "axios";
+=======
+import AuthCard from './AuthCard'
+import axios from './axios'
+>>>>>>> Stashed changes
 
 
 const Signup = () => {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -16,7 +22,7 @@ const Signup = () => {
  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  if (!email || !password || !confirmPassword) {
+  if (!fullName || !email || !password || !confirmPassword) {
     setError("Please fill in all fields.");
     setSuccess("");
     return;
@@ -30,25 +36,24 @@ const Signup = () => {
 
   setError("");
   try {
-    const res = await fetch("http://localhost:5000/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, confirmPassword })
-    });
+  const payload = { fullName, email, password }
+  console.log('Sending signup payload:', payload)
+  const { data } = await axios.post('/api/signup', payload)
+  console.log('Signup response:', data)
 
-    const data = await res.json();
-
-    if (res.ok) {
-      setSuccess(data.msg); 
+    if (data) {
+      setSuccess(data.msg || 'Signup successful')
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      setFullName("");
     } else {
-      setError(data.msg || "Signup failed");
+      setError((data && data.msg) || "Signup failed");
     }
   } catch (err) {
-    console.error(err);
-    setError("Server error, try again later.");
+  console.error('Signup error:', err)
+  const msg = err?.response?.data?.msg || err?.response?.data?.error || err.message || 'Server error, try again later.'
+  setError(msg);
   }
 };
 
@@ -79,6 +84,13 @@ const Signup = () => {
           >
             <h2 className="section-title" style={{ color: '#00B8D9', marginBottom: 8, letterSpacing: '0.04em', fontWeight: 700, fontSize: '2rem' }}>Sign Up</h2>
             <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              <input
+                type="text"
+                placeholder="Full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="auth-input signup-gradient-input auth-input-styled"
+              />
               <input
                 type="email"
                 placeholder="Email"

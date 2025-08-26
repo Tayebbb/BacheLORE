@@ -3,7 +3,12 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
+<<<<<<< Updated upstream
 import axios from "axios";
+=======
+import AuthCard from './AuthCard'
+import axios from './axios'
+>>>>>>> Stashed changes
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,21 +25,19 @@ const handleSubmit = async (e) => {
 
   setError("");
   try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.user) {
-      alert("Login successful!");
-      console.log("Logged in user:", data.user);
-      setEmail("");
-      setPassword("");
-    } else {
-      setError(data.msg || "Invalid credentials");
+    try {
+  const { data } = await axios.post('/api/login', { email, password })
+      if (data && data.user) {
+        alert('Login successful!')
+        console.log('Logged in user:', data.user)
+        setEmail('')
+        setPassword('')
+      } else {
+        setError((data && data.msg) || 'Invalid credentials')
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Server error, try again later.')
     }
   } catch (err) {
     console.error(err);
