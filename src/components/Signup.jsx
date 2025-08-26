@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 import axios from "axios";
 =======
@@ -10,6 +10,10 @@ import AuthCard from './AuthCard'
 import axios from './axios'
 >>>>>>> Stashed changes
 
+=======
+import AuthCard from './AuthCard';
+import api from "../api";  
+>>>>>>> Stashed changes
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -19,9 +23,11 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Submitting signup form...");
 
+<<<<<<< Updated upstream
   if (!fullName || !email || !password || !confirmPassword) {
     setError("Please fill in all fields.");
     setSuccess("");
@@ -56,6 +62,37 @@ const Signup = () => {
   setError(msg);
   }
 };
+=======
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      setSuccess("");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setSuccess("");
+      return;
+    }
+
+    setError("");
+    try {
+      const res = await api.post("/signup", {  
+        fullName,
+        email,
+        password,
+      });
+
+      setSuccess(res.data.msg);
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.msg || "Signup failed");
+    }
+  };
+>>>>>>> Stashed changes
 
 
   return (
@@ -86,7 +123,11 @@ const Signup = () => {
             <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               <input
                 type="text"
+<<<<<<< Updated upstream
                 placeholder="Full name"
+=======
+                placeholder="Full Name"
+>>>>>>> Stashed changes
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="auth-input signup-gradient-input auth-input-styled"
@@ -126,4 +167,8 @@ const Signup = () => {
   );
 };
 
+<<<<<<< Updated upstream
 export default Signup;
+=======
+export default Signup;
+>>>>>>> Stashed changes
