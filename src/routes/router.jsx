@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from '../pages/Home.jsx'
 import PublicHome from '../pages/PublicHome.jsx'
@@ -14,11 +14,17 @@ import Roommates from '../pages/Roommates.jsx'
 import Maids from '../pages/Maids.jsx'
 import HouseRent from '../pages/HouseRent.jsx'
 
-import { isAuthed } from '../lib/auth'
+import { isAuthed, onAuthChange, offAuthChange } from '../lib/auth'
 
 export default function Router(){
   const PrivateRoute = ({ children }) => {
-    return isAuthed() ? children : <Navigate to="/login" replace />
+    const [authed, setAuthed] = useState(() => isAuthed())
+    useEffect(() => {
+      const cb = () => setAuthed(isAuthed())
+      onAuthChange(cb)
+      return () => offAuthChange(cb)
+    }, [])
+    return authed ? children : <Navigate to="/login" replace />
   }
   return (
     <>

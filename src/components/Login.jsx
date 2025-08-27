@@ -1,48 +1,50 @@
 
+
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom'
 import Navbar from "./Navbar";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
 import AuthCard from './AuthCard'
-import axios from "axios";
+import axios from './axios'
+import { login as authLogin } from '../lib/auth'
 
 const Login = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!email || !password) {
-    setError("Please enter both email and password.");
-    return;
-  }
-
-  setError("");
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.user) {
-      alert("Login successful!");
-      console.log("Logged in user:", data.user);
-      setEmail("");
-      setPassword("");
-    } else {
-      setError(data.msg || "Invalid credentials");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("")
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    setError("Server error, try again later.");
-  }
-};
 
+    setLoading(true)
+    try {
+      const { data } = await axios.post('/api/login', { email, password })
+      if (data && data.user) {
+        // store auth flag / user and navigate
+  try { authLogin(data.user) } catch(e){}
+        console.log('Logged in user:', data.user)
+        setEmail('')
+        setPassword('')
+        navigate('/home')
+      } else {
+        setError((data && data.msg) || 'Invalid credentials')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      const msg = err?.response?.data?.msg || err?.response?.data?.error || err.message || 'Server error, try again later.'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <>
