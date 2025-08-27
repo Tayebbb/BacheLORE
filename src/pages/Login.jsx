@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import api from "../api"; 
+import React, { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import axios from '../components/axios'
+import { login as authLogin } from '../lib/auth'
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -23,23 +24,22 @@ export default function Login() {
     }
 
     try {
-      const res = await api.post("/login", { email, password });
-
-      if (res.data.user) {
-        setStatus('success');
-        console.log("Logged in user:", res.data.user);
-
+      const { data } = await axios.post('/api/login', { email, password })
+      if (data && data.user) {
+        setStatus('success')
+        console.log('Logged in user:', data.user)
+        try { authLogin(data.user) } catch(e){}
         const params = new URLSearchParams(location.search);
         const next = params.get('next');
         navigate(next || '/home');
       } else {
-        setStatus('error');
-        setError('Invalid credentials');
+        setStatus('error')
+        setError('Invalid credentials')
       }
     } catch (err) {
-      console.error("Login error:", err);
-      setStatus('error');
-      setError(err.response?.data?.msg || 'Login failed. Please try again.');
+      console.error('Login error:', err)
+      setStatus('error')
+      setError(err.response?.data?.msg || 'Login failed. Please try again.')
     }
   };
 

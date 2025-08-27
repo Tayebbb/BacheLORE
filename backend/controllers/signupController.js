@@ -1,16 +1,24 @@
 import User from "../models/User.js";
+import bcrypt from 'bcryptjs';
+
 export const signup = async (req, res) => {
-  console.log("Received signup data:", req.body);
   try {
     const { fullName, email, password } = req.body;
+    console.log('Signup payload received:', { fullName, email });
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ msg: "User already exists" });
-    const newUser = new User({ fullName, email, password });
-    await newUser.save();
-    console.log("Saved user:", newUser); 
-    res.status(201).json({ msg: "User registered successfully" });
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      fullName,
+      email,
+      password: hashed
+    });
+    const saved = await newUser.save();
+    console.log('User saved:', { id: saved._id, email: saved.email });
+    res.status(201).json({ msg: "User registered successfully", user: { id: saved._id, email: saved.email } });
   } catch (err) {
-    console.log("Error:", err);
     res.status(500).json({ error: err.message });
   }
 };
