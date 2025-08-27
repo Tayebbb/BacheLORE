@@ -13,11 +13,19 @@ app.use(express.json());
 app.use("/api/signup", signupRoutes);
 app.use("/api/login", loginRoutes);
 
+// Health endpoint to inspect server port and DB connection
+app.get('/health', (req, res) => {
+  const port = process.env.PORT || 5000;
+  const mongoState = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+  res.json({ ok: true, port, mongoState });
+});
+
 mongoose.connect(process.env.MONGO_URL)
   .then(() => {
     console.log("MongoDB Connected");
-    app.listen(process.env.PORT, () => {
-      console.log(`Server running on port ${process.env.PORT}`);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => console.log(err));
