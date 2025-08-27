@@ -1,80 +1,79 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import api from "../api"; 
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [status, setStatus] = useState('idle');
-  const [error, setError] = useState('');
 
-  const navigate = useNavigate();
-  const location = useLocation();
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom'
+import Navbar from "./Navbar";
+import bg1image from "../assets/bg1image.jpg";
+import "../App.css";
+import AuthCard from './AuthCard'
+import axios from './axios'
+import { login as authLogin } from '../lib/auth'
 
-  const submit = async (e) => {
+const Login = () => {
+  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus('loading');
-    setError('');
-
+    setError("")
     if (!email || !password) {
-      setError('Please enter both email and password.');
-      setStatus('idle');
+      setError("Please enter both email and password.");
       return;
     }
 
+    setLoading(true)
     try {
-      const res = await api.post("/login", { email, password });
-
-      if (res.data.user) {
-        setStatus('success');
-        console.log("Logged in user:", res.data.user);
-
-        const params = new URLSearchParams(location.search);
-        const next = params.get('next');
-        navigate(next || '/home');
+      const { data } = await axios.post('/api/login', { email, password })
+      if (data && data.user) {
+        // store auth flag / user and navigate
+  try { authLogin(data.user) } catch(e){}
+        console.log('Logged in user:', data.user)
+        setEmail('')
+        setPassword('')
+        navigate('/home')
       } else {
-        setStatus('error');
-        setError('Invalid credentials');
+        setError((data && data.msg) || 'Invalid credentials')
       }
     } catch (err) {
-      console.error("Login error:", err);
-      setStatus('error');
-      setError(err.response?.data?.msg || 'Login failed. Please try again.');
+      console.error('Login error:', err)
+      const msg = err?.response?.data?.msg || err?.response?.data?.error || err.message || 'Server error, try again later.'
+      setError(msg)
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <main className="container py-5 auth-page">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card p-4 auth-card">
-            <h3 className="mb-3">Welcome back</h3>
-            <p className="muted">Sign in to access your dashboard and services.</p>
-            <form onSubmit={submit} className="mt-3">
-              <div className="mb-2">
-                <label className="form-label small">Email</label>
-                <input className="form-control" value={email} onChange={e => setEmail(e.target.value)} />
-              </div>
-              <div className="mb-3">
-                <label className="form-label small">Password</label>
-                <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} />
-              </div>
-              <div className="d-flex gap-2 align-items-center">
-                <button className="btn hero-cta" type="submit">
-                  {status === 'loading' ? 'Signing in...' : 'Sign in'}
-                </button>
-                <Link to="/signup" className="muted small d-flex align-items-center ms-2">Don't have an account?</Link>
-              </div>
-              {status === 'success' && (
-                <div className="alert alert-success mt-3">Login successful!</div>
-              )}
-              {error && (
-                <div className="alert alert-danger mt-3">{error}</div>
-              )}
+    <>
+      <img src={bg1image} alt="Background" className="background-image" />
+      <div className="app-container">
+        <Navbar />
+        <AuthCard title="Login">
+          <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input signup-gradient-input auth-input-styled"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input signup-gradient-input auth-input-styled"
+              />
+              {error && <div className="auth-error">{error}</div>}
+              <button type="submit" className="auth-btn signup-gradient-btn auth-submit-btn">Login</button>
             </form>
-          </div>
-        </div>
+        </AuthCard>
       </div>
-    </main>
+    </>
   );
-}
+};
+
+export default Login;
