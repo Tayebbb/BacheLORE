@@ -1,22 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from '../components/axios'
 
-const sampleJobs = new Array(8).fill(0).map((_,i)=>({
-  id: 178000 + i,
-  title: i%2===0? 'English Medium Tutor Needed' : 'Bangla Medium Tutor Needed',
-  days: i%2===0? '4 days/week' : '3 days/week',
-  subject: i%2===0? 'Physics, Chemistry, Math' : 'Bangla, English',
-  location: i%2===0? 'Adabor, Dhaka' : 'Green Road, Dhaka',
-  salary: i%2===0? '7000 BDT' : '4500 BDT',
-  guardian: i%2===0? '+88017xxxxxxx' : '+88016xxxxxxx',
-  section: i%2===0? 'Class 8' : 'HSC 1st Year'
-}))
 
 export default function Tuition(){
   const [locationFilter, setLocationFilter] = useState('')
+  const [tuitions, setTuitions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const filtered = sampleJobs.filter(j => {
+  useEffect(() => {
+    setLoading(true)
+    axios.get('/api/tuitions')
+      .then(res => {
+        setTuitions(res.data)
+        setLoading(false)
+      })
+      .catch(err => {
+        setError('Failed to load tuitions')
+        setLoading(false)
+      })
+  }, [])
+
+  const filtered = tuitions.filter(j => {
     if(!locationFilter) return true
-    return j.location.toLowerCase().includes(locationFilter.trim().toLowerCase())
+    return j.location?.toLowerCase().includes(locationFilter.trim().toLowerCase())
+      || j.subject?.toLowerCase().includes(locationFilter.trim().toLowerCase())
+      || j.description?.toLowerCase().includes(locationFilter.trim().toLowerCase())
   })
 
   return (
@@ -28,33 +37,33 @@ export default function Tuition(){
           </div>
 
           <div className="d-flex gap-2 align-items-center">
-            <input value={locationFilter} onChange={e=>setLocationFilter(e.target.value)} className="form-control form-control-sm" style={{minWidth:200}} placeholder="Filter by location (e.g. Dhaka)" />
+            <input value={locationFilter} onChange={e=>setLocationFilter(e.target.value)} className="form-control form-control-sm" style={{minWidth:200}} placeholder="Filter by location/subject" />
             <button className="btn btn-outline-secondary btn-sm" onClick={()=>setLocationFilter('')}>Clear</button>
           </div>
         </div>
 
-        <div className="row g-4">
-          {filtered.map(job=> (
-            <div key={job.id} className="col-md-6">
-              <article className="job-card">
-                <div className="job-card-inner">
-                  <h5 className="job-title">{job.title}</h5>
-
-                  <ul className="list-unstyled small mb-3">
-                    <li><strong>Days:</strong> {job.days}</li>
-                    <li><strong>Subject:</strong> {job.subject}</li>
-                    <li><strong>Location:</strong> {job.location}</li>
-                    <li><strong>Salary:</strong> {job.salary}</li>
-                    <li><strong>Guardian number:</strong> {job.guardian}</li>
-                    <li><strong>Section:</strong> {job.section}</li>
-                  </ul>
-
-                  {/* details removed per design; card shows offer fields only */}
-                </div>
-              </article>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-5">Loading tuitions...</div>
+        ) : error ? (
+          <div className="alert alert-danger">{error}</div>
+        ) : (
+          <div className="row g-4">
+            {filtered.map(job=> (
+              <div key={job._id} className="col-md-6">
+                <article className="job-card">
+                  <div className="job-card-inner">
+                    <h5 className="job-title">{job.subject}</h5>
+                    <ul className="list-unstyled small mb-3">
+                      <li><strong>Description:</strong> {job.description}</li>
+                      <li><strong>Contact:</strong> {job.contact}</li>
+                      <li><strong>Posted:</strong> {new Date(job.createdAt).toLocaleString()}</li>
+                    </ul>
+                  </div>
+                </article>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   )
