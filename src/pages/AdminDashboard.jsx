@@ -12,6 +12,10 @@ export default function AdminDashboard() {
   const [booked, setBooked] = useState([])
   const [appliedMaids, setAppliedMaids] = useState([])
   const [bookedMaids, setBookedMaids] = useState([])
+  const [appliedRoommates, setAppliedRoommates] = useState([])
+  const [unverifiedHouseRent, setUnverifiedHouseRent] = useState([])
+  const [appliedToHost, setAppliedToHost] = useState([])
+  const [houseForm, setHouseForm] = useState({ title: '', description: '', location: '', price: '', rooms: '', contact: '' });
 
   // Check admin
   React.useEffect(() => {
@@ -98,17 +102,26 @@ export default function AdminDashboard() {
         const token = localStorage.getItem('adminToken');
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const [aRes, bRes, amRes, bmRes] = await Promise.all([
+        const [aRes, bRes, amRes, bmRes, arRes, uhRes] = await Promise.all([
           fetch('/api/applied-tuitions', { headers }),
           fetch('/api/booked-tuitions', { headers }),
           fetch('/api/applied-maids', { headers }),
-          fetch('/api/booked-maids', { headers })
+          fetch('/api/booked-maids', { headers }),
+          fetch('/api/roommates/applied', { headers }),
+          fetch('/api/house-rent/admin/unverified', { headers })
         ]);
-        const [aJson, bJson, amJson, bmJson] = await Promise.all([aRes.json(), bRes.json(), amRes.json(), bmRes.json()]);
+        const [aJson, bJson, amJson, bmJson, arJson, uhJson] = await Promise.all([aRes.json(), bRes.json(), amRes.json(), bmRes.json(), arRes.json(), uhRes.json()]);
         if(aRes.ok) setApplied(aJson);
         if(bRes.ok) setBooked(bJson);
         if(amRes.ok) setAppliedMaids(amJson);
         if(bmRes.ok) setBookedMaids(bmJson);
+        if(arRes.ok) setAppliedRoommates(arJson);
+        if(uhRes.ok) setUnverifiedHouseRent(uhJson);
+        // fetch applications to host listings (applicant + host/listing)
+        try{
+          const athRes = await fetch('/api/roommates/applied-to-host', { headers });
+          if(athRes.ok){ const athJson = await athRes.json(); setAppliedToHost(athJson); }
+        }catch(e){ console.error('Failed loading applied-to-host', e); }
       }catch(e){ console.error(e); }
     }
     load();
@@ -143,6 +156,52 @@ export default function AdminDashboard() {
     }catch(err){ setError('Network error'); }
   }
 
+  const verifyRoommateApplication = async (id) => {
+    setMsg(''); setError('');
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/roommates/applied/${id}/verify`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('Roommate verified and listed.'); setAppliedRoommates(a => a.filter(x=> x._id !== id)); }
+      else setError(data.msg || data.error || 'Error verifying');
+    }catch(err){ setError('Network error'); }
+  }
+
+  const deleteAppliedRoommate = async (id) => {
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`/api/roommates/applied/${id}`, { method: 'DELETE', headers });
+      if(res.ok) setAppliedRoommates(prev => prev.filter(x=> x._id !== id));
+    }catch(e){ console.error(e); }
+  }
+
+  const verifyHouseListing = async (id) => {
+    setMsg(''); setError('');
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/house-rent/admin/${id}/verify`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('House listing verified.'); setUnverifiedHouseRent(prev => prev.filter(x=> x._id !== id)); }
+      else setError(data.msg || data.error || 'Error verifying');
+    }catch(err){ setError('Network error'); }
+  }
+
+  const deleteHouseListing = async (id) => {
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`/api/house-rent/admin/${id}`, { method: 'DELETE', headers });
+      if(res.ok) setUnverifiedHouseRent(prev => prev.filter(x=> x._id !== id));
+    }catch(e){ console.error(e); }
+  }
+
   const unbookMaid = async (id) => {
     setMsg(''); setError('');
     try{
@@ -169,8 +228,10 @@ export default function AdminDashboard() {
     }catch(err){ setError('Network error'); }
   }
 
-  return (
-    <div className="container py-5">
+  try{
+    console.log('AdminDashboard render');
+    return (
+      <div className="container py-5">
       <h2 className="mb-4">Admin Dashboard</h2>
       <button className="btn btn-secondary mb-4" onClick={() => { localStorage.removeItem('isAdmin'); navigate('/admin-login'); }}>Logout</button>
       <div className="row">
@@ -210,6 +271,32 @@ export default function AdminDashboard() {
               <textarea className="form-control mb-2" placeholder="Description" value={maid.description} onChange={e => setMaid(m => ({ ...m, description: e.target.value }))} />
               <input className="form-control mb-2" placeholder="Contact" value={maid.contact} onChange={e => setMaid(m => ({ ...m, contact: e.target.value }))} />
               <button className="btn btn-primary w-100" type="submit">Post Maid</button>
+            </form>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card p-3 mb-4">
+            <h4>Post Listing (House Rent)</h4>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setMsg(''); setError('');
+              try{
+                const token = localStorage.getItem('adminToken');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const res = await fetch('/api/house-rent/create', { method: 'POST', headers, body: JSON.stringify({ ...houseForm, ownerId: localStorage.getItem('adminUserId') || '', adminCode }) });
+                const data = await res.json();
+                if(res.ok){ setMsg('House listing created.'); setHouseForm({ title: '', description: '', location: '', price: '', rooms: '', contact: '' }); setUnverifiedHouseRent(u => [data.listing, ...u]); }
+                else setError(data.msg || data.error || 'Error creating listing');
+              }catch(err){ setError('Network error'); }
+            }}>
+              <input className="form-control mb-2" placeholder="Title" value={houseForm.title} onChange={e => setHouseForm(h => ({ ...h, title: e.target.value }))} required />
+              <textarea className="form-control mb-2" placeholder="Description" value={houseForm.description} onChange={e => setHouseForm(h => ({ ...h, description: e.target.value }))} />
+              <input className="form-control mb-2" placeholder="Location" value={houseForm.location} onChange={e => setHouseForm(h => ({ ...h, location: e.target.value }))} />
+              <input className="form-control mb-2" placeholder="Price" value={houseForm.price} onChange={e => setHouseForm(h => ({ ...h, price: e.target.value }))} />
+              <input className="form-control mb-2" placeholder="Rooms" value={houseForm.rooms} onChange={e => setHouseForm(h => ({ ...h, rooms: e.target.value }))} />
+              <input className="form-control mb-2" placeholder="Contact info" value={houseForm.contact} onChange={e => setHouseForm(h => ({ ...h, contact: e.target.value }))} />
+              <button className="btn btn-primary w-100" type="submit">Create</button>
             </form>
           </div>
         </div>
@@ -271,6 +358,85 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
+        <div className="col-md-6 mt-3">
+          <div className="card p-3">
+            <h4>Applied Roommates</h4>
+            {appliedRoommates.length === 0 ? <div className="muted">No applications</div> : (
+              <div className="list-group">
+                {appliedRoommates.map(a => (
+                  <div key={a._id} className="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{a.name} — {a.email}</div>
+                      <div className="small muted">Applied for Host listing • Location: {a.location}</div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-success" onClick={() => verifyRoommateApplication(a._id)}>Verify & List</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => deleteAppliedRoommate(a._id)}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="col-md-6 mt-3">
+          <div className="card p-3">
+            <h4>Applications to Host Listings</h4>
+            {appliedToHost.length === 0 ? <div className="muted">No applications to host listings</div> : (
+              <div className="list-group">
+                {appliedToHost.map(a => (
+                  <div key={a._id} className="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">Applicant: {a.applicantRef ? a.applicantRef.fullName : a.name} — {a.applicantRef ? a.applicantRef.email : a.email}</div>
+                      <div className="small muted">For Host: {a.listingRef && a.listingRef.userRef ? a.listingRef.userRef.fullName : 'Unknown host'} • Location: {a.listingRef ? a.listingRef.location : ''}</div>
+                      <div className="mt-2">Message: {a.message}</div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-success" onClick={async ()=>{
+                        // verify application: here we can mark as handled by deleting the application or notifying host; reuse delete for now
+                        const token = localStorage.getItem('adminToken');
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = `Bearer ${token}`;
+                        const res = await fetch(`/api/roommates/applied/${a._id}`, { method: 'DELETE', headers });
+                        if(res.ok) setAppliedToHost(prev => prev.filter(x=> x._id !== a._id));
+                      }}>Mark handled</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={async ()=>{
+                        const token = localStorage.getItem('adminToken');
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = `Bearer ${token}`;
+                        const res = await fetch(`/api/roommates/applied/${a._id}`, { method: 'DELETE', headers });
+                        if(res.ok) setAppliedToHost(prev => prev.filter(x=> x._id !== a._id));
+                      }}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="col-md-6 mt-3">
+          <div className="card p-3">
+            <h4>Unverified House Rent Listings</h4>
+            {unverifiedHouseRent.length === 0 ? <div className="muted">No unverified listings</div> : (
+              <div className="list-group">
+                {unverifiedHouseRent.map(h => (
+                  <div key={h._id} className="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{h.title} — {h.location}</div>
+                      <div className="small muted">Posted by: {h.ownerRef} • Price: {h.price}</div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-success" onClick={() => verifyHouseListing(h._id)}>Verify</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => deleteHouseListing(h._id)}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
         <div className="col-md-6">
           <div className="card p-3">
             <h4>Booked Tuitions</h4>
@@ -312,6 +478,15 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
-  );
+      </div>
+    );
+  }catch(err){
+    console.error('AdminDashboard render error', err);
+    return (
+      <div className="container py-5">
+        <h2>Admin Dashboard — render error</h2>
+        <pre style={{whiteSpace: 'pre-wrap', color: 'red'}}>{String(err && err.stack ? err.stack : err)}</pre>
+      </div>
+    )
+  }
 }

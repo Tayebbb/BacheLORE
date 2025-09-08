@@ -9,6 +9,8 @@ const UserSchema = new mongoose.Schema({
   year: { type: String, required: true },
   semester: { type: String, required: true },
   eduEmail: { type: String, required: true },
+  roommateCategory: { type: String, enum: ['HostRoommate','SeekerRoommate'], default: 'SeekerRoommate' },
+  isAvailableAsHost: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema);

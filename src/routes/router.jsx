@@ -14,6 +14,7 @@ import Marketplace from '../pages/Marketplace.jsx'
 import Roommates from '../pages/Roommates.jsx'
 import Maids from '../pages/Maids.jsx'
 import HouseRent from '../pages/HouseRent.jsx'
+import RoommateListings from '../pages/RoommateListings.jsx'
 import AdminLogin from '../pages/AdminLogin.jsx'
 import AdminDashboard from '../pages/AdminDashboard.jsx'
 import AnnouncementsAll from '../pages/AnnouncementsAll.jsx'
@@ -40,6 +41,7 @@ export default function Router(){
         <Route path="/signup" element={<Signup/>} />
         <Route path="/dashboard" element={<div>Dashboard</div>} />
         <Route path="/roommates" element={<PrivateRoute><Roommates/></PrivateRoute>} />
+  <Route path="/roommate-listings" element={<PrivateRoute><RoommateListings/></PrivateRoute>} />
         <Route path="/maids" element={<PrivateRoute><Maids/></PrivateRoute>} />
         <Route path="/tuition" element={<PrivateRoute><Tuition/></PrivateRoute>} />
         <Route path="/bills" element={<PrivateRoute><Bills/></PrivateRoute>} />

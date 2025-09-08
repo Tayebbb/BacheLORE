@@ -36,7 +36,7 @@ export const login = async (req, res) => {
 
     res.json({
       msg: "Login successful",
-      user: { id: user._id, fullName: user.fullName, email: user.email }
+  user: { id: user._id, fullName: user.fullName, email: user.email, roommateCategory: user.roommateCategory || 'SeekerRoommate', isAvailableAsHost: !!user.isAvailableAsHost }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
