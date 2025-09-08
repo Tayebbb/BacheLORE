@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ADMIN_CODE = 'choton2025'; // Should match backend, or use env
+const ADMIN_CODE = 'choton2025'; // fallback only; backend will issue JWT
 
 export default function AdminLogin() {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (code === ADMIN_CODE) {
-      localStorage.setItem('isAdmin', 'true');
-      navigate('/admin-dashboard');
-    } else {
-      setError('Invalid admin code.');
+    try {
+      const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode: code }) });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        localStorage.setItem('isAdmin', 'true');
+        localStorage.setItem('adminToken', data.token);
+        navigate('/admin-dashboard');
+      } else {
+        setError(data.msg || 'Invalid admin code.');
+      }
+    } catch (err) {
+      setError('Network error');
     }
   };
 

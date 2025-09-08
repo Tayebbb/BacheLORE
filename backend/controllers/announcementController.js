@@ -1,7 +1,9 @@
 import Announcement from '../models/Announcement.js';
+import jwt from 'jsonwebtoken';
 
-// Simple admin code check (replace with real auth in production)
+// Simple admin check: accept JWT or adminCode as fallback
 const ADMIN_CODE = process.env.ADMIN_CODE || 'choton2025';
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 export const getAnnouncements = async (req, res) => {
   try {
@@ -20,9 +22,18 @@ export const getAnnouncements = async (req, res) => {
 
 export const createAnnouncement = async (req, res) => {
   try {
-    // Simple admin code check: require adminCode in body or query
+    // Allow Authorization: Bearer <token> or adminCode in body/query
+    let isAdmin = false;
+    const authHeader = req.headers.authorization || '';
+    if (authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        if (payload && payload.role === 'admin') isAdmin = true;
+      } catch (err) { /* invalid token */ }
+    }
     const adminCode = req.body.adminCode || req.query.adminCode;
-    if (adminCode !== ADMIN_CODE) {
+    if (!isAdmin && adminCode !== ADMIN_CODE) {
       return res.status(403).json({ msg: 'Forbidden: Admins only' });
     }
     const { title, message } = req.body;

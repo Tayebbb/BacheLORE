@@ -7,6 +7,7 @@ import signupRoutes from "./routes/signup.js";
 import loginRoutes from "./routes/login.js";
 import announcementRoutes from "./routes/announcements.js";
 import tuitionRoutes from "./routes/tuitions.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ app.use("/api/signup", signupRoutes);
 app.use("/api/login", loginRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/tuitions", tuitionRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health endpoint to inspect server port and DB connection
 app.get('/health', (req, res) => {

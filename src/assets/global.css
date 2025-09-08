@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap');
+
 /* Attractive error message for signup form */
 .form-error-msg {
   background: #ffe6e6;
@@ -49,7 +51,6 @@ footer, .footer, .app-footer {
     padding: 1.2rem 0.5rem;
   }
 }
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap');
 
 :root{
   --primary: #6C63FF;
@@ -197,6 +198,97 @@ footer{box-shadow: 0 -8px 40px rgba(8,12,40,0.06);}
   border: none;
   margin-top: 8px;
   padding: 0.85rem 0;
+}
+
+/* Announcements UI improvements */
+.announcement-item{
+  background: rgba(255,255,255,0.98);
+  border: 1px solid rgba(15,23,42,0.04);
+  border-left: 5px solid rgba(108,99,255,0.14);
+  padding: 16px 20px 14px 20px; /* more horizontal padding so text doesn't hit edges */
+  border-radius: 10px;
+  margin-bottom: 12px; /* keep them close but separated */
+  box-shadow: 0 6px 18px rgba(12,10,60,0.04);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.announcement-title{
+  font-size: 1.25rem; /* larger than body text to pop */
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--dark);
+  letter-spacing: -0.2px;
+}
+
+.announcement-message{
+  font-size: 1.02rem; /* readable body text */
+  line-height: 1.6;
+  color: rgba(15,23,42,0.92);
+  margin-bottom: 8px;
+}
+
+.announcement-meta{
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.announcement-item hr{
+  margin: 10px 0 0 0;
+  border: 0;
+  border-top: 1px solid rgba(15,23,42,0.06);
+}
+
+.announcement-item:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(12,10,60,0.08);
+}
+
+@media (max-width: 600px) {
+  .announcements-panel { padding: 6px; }
+  .announcement-item{ padding: 12px 12px; }
+  .announcement-title{ font-size: 1.05rem; }
+  .announcement-message{ font-size: 0.98rem; }
+}
+
+/* container padding so items don't touch outer edges */
+.announcements-panel{ padding: 8px; }
+
+/* Card wrapper for announcements section */
+.announcements-card{
+  background: linear-gradient(180deg, rgba(249,250,255,0.9), rgba(255,255,255,0.95));
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(15,23,42,0.04);
+}
+
+/* Search input improvements */
+.search-input-group{ max-width: 720px; }
+.search-input{ border-radius: 999px; box-shadow: 0 6px 18px rgba(12,10,60,0.04); padding-left: 12px; }
+.search-input:focus{ box-shadow: 0 12px 30px rgba(108,99,255,0.12); border-color: rgba(108,99,255,0.28); outline: none; }
+.search-clear{ border-radius: 999px; margin-left: 8px; }
+
+.result-count{ min-width: 120px; text-align: right; }
+
+/* Slight tag/left accent area placeholder (future tag support) */
+.announcement-item::before{
+  content: '';
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(108,99,255,0.18), rgba(0,194,168,0.06));
+  display: inline-block;
+  margin-right: 12px;
+  border-radius: 6px;
+}
+
+.announcement-content{ min-width: 0; }
+
+/* tighter visual rhythm but clear separation */
+.announcement-item{ padding: 14px 20px; margin-bottom: 12px; }
+
+@media (max-width: 768px){
+  .search-input-group{ max-width: 100%; }
+  .result-count{ display: none; }
 }
 
 /* Announcements / Promo panels */

@@ -21,9 +21,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMsg(''); setError('');
     try {
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch('/api/announcements', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ ...announcement, adminCode })
       });
       const data = await res.json();
@@ -42,9 +45,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMsg(''); setError('');
     try {
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch('/api/tuitions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ ...tuition, adminCode })
       });
       const data = await res.json();
