@@ -10,6 +10,9 @@ import tuitionRoutes from "./routes/tuitions.js";
 import adminRoutes from "./routes/admin.js";
 import appliedTuitionsRoutes from "./routes/appliedTuitions.js";
 import bookedTuitionsRoutes from "./routes/bookedTuitions.js";
+import maidsRoutes from "./routes/maids.js";
+import appliedMaidsRoutes from "./routes/appliedMaids.js";
+import bookedMaidsRoutes from "./routes/bookedMaids.js";
 
 dotenv.config();
 const app = express();
@@ -24,6 +27,9 @@ app.use("/api/tuitions", tuitionRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/applied-tuitions", appliedTuitionsRoutes);
 app.use("/api/booked-tuitions", bookedTuitionsRoutes);
+app.use('/api/maids', maidsRoutes);
+app.use('/api/applied-maids', appliedMaidsRoutes);
+app.use('/api/booked-maids', bookedMaidsRoutes);
 
 // Health endpoint to inspect server port and DB connection
 app.get('/health', (req, res) => {

@@ -5,10 +5,13 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [announcement, setAnnouncement] = useState({ title: '', message: '' });
   const [tuition, setTuition] = useState({ title: '', subject: '', days: '', salary: '', location: '', description: '', contact: '' });
+  const [maid, setMaid] = useState({ name: '', hourlyRate: '', location: '', description: '', contact: '' });
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
   const [applied, setApplied] = useState([])
   const [booked, setBooked] = useState([])
+  const [appliedMaids, setAppliedMaids] = useState([])
+  const [bookedMaids, setBookedMaids] = useState([])
 
   // Check admin
   React.useEffect(() => {
@@ -73,6 +76,21 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleMaid = async (e) => {
+    e.preventDefault();
+    setMsg(''); setError('');
+    if(!maid.name || !maid.hourlyRate){ setError('Name and hourly rate are required'); return; }
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch('/api/maids', { method: 'POST', headers, body: JSON.stringify({ ...maid, adminCode }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('Maid posted!'); setMaid({ name: '', hourlyRate: '', location: '', description: '', contact: '' }); }
+      else setError(data.msg || data.error || 'Error posting maid');
+    }catch(err){ setError('Network error'); }
+  };
+
   // load applied and booked tuitions for admin
   React.useEffect(() => {
     const load = async () => {
@@ -80,11 +98,17 @@ export default function AdminDashboard() {
         const token = localStorage.getItem('adminToken');
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const [aRes, bRes] = await Promise.all([fetch('/api/applied-tuitions', { headers }), fetch('/api/booked-tuitions', { headers })]);
-        const aJson = await aRes.json();
-        const bJson = await bRes.json();
+        const [aRes, bRes, amRes, bmRes] = await Promise.all([
+          fetch('/api/applied-tuitions', { headers }),
+          fetch('/api/booked-tuitions', { headers }),
+          fetch('/api/applied-maids', { headers }),
+          fetch('/api/booked-maids', { headers })
+        ]);
+        const [aJson, bJson, amJson, bmJson] = await Promise.all([aRes.json(), bRes.json(), amRes.json(), bmRes.json()]);
         if(aRes.ok) setApplied(aJson);
         if(bRes.ok) setBooked(bJson);
+        if(amRes.ok) setAppliedMaids(amJson);
+        if(bmRes.ok) setBookedMaids(bmJson);
       }catch(e){ console.error(e); }
     }
     load();
@@ -100,6 +124,35 @@ export default function AdminDashboard() {
   const data = await res.json();
   if(res.ok){ setMsg('Application verified.'); setApplied(a => a.filter(x=> x._id !== id)); setBooked(b => [data.booked, ...b]); }
   else setError(data.msg || data.error || 'Error verifying');
+    }catch(err){ setError('Network error'); }
+  }
+
+  const verifyMaidApplication = async (id) => {
+    setMsg(''); setError('');
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      // ask admin how many hours to mark busy
+      const hoursStr = window.prompt('Mark maid busy for how many hours?', '4') || '4';
+      const hours = Number(hoursStr) || 4;
+      const res = await fetch(`/api/applied-maids/${id}/verify`, { method: 'POST', headers, body: JSON.stringify({ adminCode, hours }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('Maid booking verified.'); setAppliedMaids(a => a.filter(x=> x._id !== id)); setBookedMaids(b => [data.booked, ...b]); }
+      else setError(data.msg || data.error || 'Error verifying');
+    }catch(err){ setError('Network error'); }
+  }
+
+  const unbookMaid = async (id) => {
+    setMsg(''); setError('');
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/booked-maids/${id}/unbook`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('Maid is available again.'); setBookedMaids(b => b.filter(x=> x._id !== id)); }
+      else setError(data.msg || data.error || 'Error unbooking');
     }catch(err){ setError('Network error'); }
   }
 
@@ -147,6 +200,19 @@ export default function AdminDashboard() {
             </form>
           </div>
         </div>
+        <div className="col-md-6">
+          <div className="card p-3 mb-4">
+            <h4>Post Maid</h4>
+            <form onSubmit={handleMaid}>
+              <input className="form-control mb-2" placeholder="Name" value={maid.name} onChange={e => setMaid(m => ({ ...m, name: e.target.value }))} required />
+              <input className="form-control mb-2" placeholder="Hourly Rate (e.g., 120 TK/hr)" value={maid.hourlyRate} onChange={e => setMaid(m => ({ ...m, hourlyRate: e.target.value }))} required />
+              <input className="form-control mb-2" placeholder="Location" value={maid.location} onChange={e => setMaid(m => ({ ...m, location: e.target.value }))} />
+              <textarea className="form-control mb-2" placeholder="Description" value={maid.description} onChange={e => setMaid(m => ({ ...m, description: e.target.value }))} />
+              <input className="form-control mb-2" placeholder="Contact" value={maid.contact} onChange={e => setMaid(m => ({ ...m, contact: e.target.value }))} />
+              <button className="btn btn-primary w-100" type="submit">Post Maid</button>
+            </form>
+          </div>
+        </div>
       </div>
       {(msg || error) && <div className={`alert ${msg ? 'alert-success' : 'alert-danger'} mt-3`}>{msg || error}</div>}
       <div className="row mt-4">
@@ -180,6 +246,33 @@ export default function AdminDashboard() {
         </div>
         <div className="col-md-6">
           <div className="card p-3">
+            <h4>Applied Maids</h4>
+            {appliedMaids.length === 0 ? <div className="muted">No applications</div> : (
+              <div className="list-group">
+                {appliedMaids.map(a => (
+                  <div key={a._id} className="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{a.name} — {a.email}</div>
+                      <div className="small muted">Applied for Maid ID: {a.maidId}</div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-success" onClick={() => verifyMaidApplication(a._id)}>Verify & Book</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={async ()=>{
+                        const token = localStorage.getItem('adminToken');
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = `Bearer ${token}`;
+                        const res = await fetch(`/api/applied-maids/${a._id}`, { method: 'DELETE', headers });
+                        if(res.ok) setAppliedMaids(prev => prev.filter(x=> x._id !== a._id));
+                      }}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card p-3">
             <h4>Booked Tuitions</h4>
             {booked.length === 0 ? <div className="muted">No booked tuitions</div> : (
               <div className="list-group">
@@ -191,6 +284,26 @@ export default function AdminDashboard() {
                     </div>
                     <div className="d-flex gap-2">
                       <button className="btn btn-sm btn-warning" onClick={() => unbook(b._id)}>Unbook</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="col-md-6 mt-3">
+          <div className="card p-3">
+            <h4>Booked Maids</h4>
+            {bookedMaids.length === 0 ? <div className="muted">No booked maids</div> : (
+              <div className="list-group">
+                {bookedMaids.map(b => (
+                  <div key={b._id} className="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{b.name} — {b.location}</div>
+                      <div className="small muted">Booked by: {b.applicantName} ({b.applicantEmail}) • Busy until: {new Date(b.busyUntil).toLocaleString()}</div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-warning" onClick={() => unbookMaid(b._id)}>Unbook</button>
                     </div>
                   </div>
                 ))}
