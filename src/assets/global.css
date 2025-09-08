@@ -1,3 +1,54 @@
+/* Attractive error message for signup form */
+.form-error-msg {
+  background: #ffe6e6;
+  color: #b30000;
+  border: 1.5px solid #ffb3b3;
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-top: 6px;
+  font-size: 0.98em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 500;
+}
+/* Signup page layout fixes */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-page .row.justify-content-center {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.auth-card, .card.auth-card {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  background: #fff;
+  padding-bottom: 2rem;
+}
+
+footer, .footer, .app-footer {
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
+}
+
+@media (max-width: 600px) {
+  .auth-card, .card.auth-card {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap');
 
 :root{

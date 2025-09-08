@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import announcements from '../data/announcements'
+import React, { useState, useEffect } from 'react'
 import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
 
@@ -7,11 +6,19 @@ import FEATURES from '../data/features'
 import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
 import FeatureCard from '../components/FeatureCard'
 
-export default function Home(){
+export default function Home() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle')
   const [message, setMessage] = useState('')
-  
+  const [announcements, setAnnouncements] = useState([])
+
+  useEffect(() => {
+    fetch('/api/announcements')
+      .then(res => res.json())
+      .then(data => setAnnouncements(Array.isArray(data) ? data : data.announcements || []))
+      .catch(() => setAnnouncements([]))
+  }, [])
+
   const trackRef = useCarouselAutoplay({ intervalMs: 3000, mobileThreshold: 768 })
 
   return (

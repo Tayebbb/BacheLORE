@@ -1,14 +1,20 @@
-import React, { useEffect } from 'react'
-import announcements from '../data/announcements'
+import React, { useEffect, useState } from 'react'
 import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
 import FEATURES from '../data/features'
 import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
 import FeatureCard from '../components/FeatureCard'
 
-
-export default function PublicHome(){
+export default function PublicHome() {
+  const [announcements, setAnnouncements] = useState([])
   const trackRef = useCarouselAutoplay({ intervalMs: 3000, mobileThreshold: 768 })
+
+  useEffect(() => {
+    fetch('/api/announcements')
+      .then(res => res.json())
+      .then(data => setAnnouncements(Array.isArray(data) ? data : data.announcements || []))
+      .catch(() => setAnnouncements([]))
+  }, [])
 
   return (
     <main>
