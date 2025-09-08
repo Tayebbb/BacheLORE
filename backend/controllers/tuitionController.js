@@ -29,12 +29,21 @@ export const createTuition = async (req, res) => {
     if (!isAdmin && adminCode !== ADMIN_CODE) {
       return res.status(403).json({ msg: 'Forbidden: Admins only' });
     }
-    const { subject, description, contact } = req.body;
-    if (!subject || !description || !contact) {
+    const { title, subject, days, salary, location, description, contact } = req.body;
+    if (!title || !subject || !days || !salary || !location || !description || !contact) {
       return res.status(400).json({ msg: 'All fields are required' });
     }
+    // validate Bangladeshi-style mobile: starts with 01 and 11 digits total
+    const PHONE_RE = /^01\d{9}$/;
+    if (!PHONE_RE.test(contact)) {
+      return res.status(400).json({ msg: 'Contact must be an 11-digit phone number starting with 01' });
+    }
     const tuition = new Tuition({
+      title,
       subject,
+      days,
+      salary,
+      location,
       description,
       contact,
       postedBy: 'admin'

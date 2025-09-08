@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from '../components/axios'
+import { getUser } from '../lib/auth'
 
 
 export default function Tuition(){
@@ -7,6 +8,7 @@ export default function Tuition(){
   const [tuitions, setTuitions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [openId, setOpenId] = useState(null)
 
   useEffect(() => {
     setLoading(true)
@@ -52,12 +54,28 @@ export default function Tuition(){
               <div key={job._id} className="col-md-6">
                 <article className="job-card">
                   <div className="job-card-inner">
-                    <h5 className="job-title">{job.subject}</h5>
-                    <ul className="list-unstyled small mb-3">
-                      <li><strong>Description:</strong> {job.description}</li>
-                      <li><strong>Contact:</strong> {job.contact}</li>
-                      <li><strong>Posted:</strong> {new Date(job.createdAt).toLocaleString()}</li>
-                    </ul>
+                    <h5 className="job-title">{job.title || job.subject}</h5>
+                    <div className="small muted mb-2">
+                      <span><strong>Location:</strong> {job.location}</span>
+                      <span className="mx-2">•</span>
+                      <span><strong>Salary:</strong> {job.salary}</span>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-primary btn-sm" onClick={() => {
+                        const ev = new CustomEvent('openApplyModal', { detail: { tuition: job } });
+                        window.dispatchEvent(ev);
+                      }}>Apply</button>
+                      <button className="btn btn-outline-secondary btn-sm" aria-expanded={openId === job._id} onClick={() => setOpenId(openId === job._id ? null : job._id)}>Contact</button>
+                    </div>
+                    <div className="tuition-details mt-3" style={{ display: openId === job._id ? 'block' : 'none' }}>
+                      <ul className="list-unstyled small mb-0">
+                        <li><strong>Subject:</strong> {job.subject}</li>
+                        <li><strong>Days:</strong> {job.days}</li>
+                        <li><strong>Description:</strong> {job.description}</li>
+                        <li><strong>Contact:</strong> {job.contact}</li>
+                        <li className="mt-1"><strong>Posted:</strong> {new Date(job.createdAt).toLocaleString()}</li>
+                      </ul>
+                    </div>
                   </div>
                 </article>
               </div>
@@ -65,6 +83,63 @@ export default function Tuition(){
           </div>
         )}
       </div>
+
+      {/* Apply modal (global simple implementation) */}
+      <ApplyModal />
     </main>
+  )
+}
+
+function ApplyModal(){
+  const [visible, setVisible] = useState(false);
+  const [tuition, setTuition] = useState(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contact, setContact] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState('');
+
+  useEffect(()=>{
+    const handler = (e) => {
+      const u = getUser();
+      setTuition(e.detail.tuition);
+      setVisible(true);
+      setStatus('');
+      if(u){ setName(u.fullName || u.fullname || u.name || ''); setEmail(u.email || ''); setContact(u.phone || u.contact || ''); }
+      else { setName(''); setEmail(''); setContact(''); }
+    }
+    window.addEventListener('openApplyModal', handler);
+    return () => window.removeEventListener('openApplyModal', handler);
+  },[])
+
+  const submit = async () => {
+    if (!tuition) return;
+    if (!name || !email || !contact) { setStatus('Please provide name, email and contact'); return; }
+    setStatus('Submitting...');
+    try{
+      const res = await axios.post('/api/applied-tuitions', { tuitionId: tuition._id, name, email, contact, message });
+      setStatus('Application submitted.');
+      setName(''); setEmail(''); setMessage('');
+      setContact('');
+      setTimeout(()=>{ setVisible(false); setStatus(''); }, 1500);
+    }catch(err){ setStatus('Submission failed'); }
+  }
+
+  if (!visible) return null;
+  return (
+    <div className="modal-backdrop p-4" style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:1200 }}>
+      <div className="card p-3" style={{ width:480, maxWidth:'94%' }}>
+        <h5 className="mb-2">Apply for: {tuition?.subject}</h5>
+  <input className="form-control mb-2" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} />
+  <input className="form-control mb-2" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} />
+  <input className="form-control mb-2" placeholder="Your contact (phone)" value={contact} onChange={e=>setContact(e.target.value)} />
+        <textarea className="form-control mb-2" placeholder="Message (optional)" value={message} onChange={e=>setMessage(e.target.value)} />
+        <div className="d-flex gap-2 justify-content-end">
+          <button className="btn btn-secondary" onClick={()=>setVisible(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={submit}>Submit</button>
+        </div>
+        {status && <div className="mt-2 small muted">{status}</div>}
+      </div>
+    </div>
   )
 }
