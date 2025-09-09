@@ -1,9 +1,10 @@
-import marketplaceRoutes from './routes/marketplace.js';
-app.use('/api/marketplace', marketplaceRoutes);
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import subscriptionRoutes from './routes/subscription.js';
+import marketplaceRoutes from './routes/marketplace.js';
 
 import signupRoutes from "./routes/signup.js";
 import loginRoutes from "./routes/login.js";
@@ -25,7 +26,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.use("/api/signup", signupRoutes);
 app.use("/api/login", loginRoutes);
 app.use("/api/announcements", announcementRoutes);
@@ -36,10 +36,11 @@ app.use("/api/booked-tuitions", bookedTuitionsRoutes);
 app.use('/api/maids', maidsRoutes);
 app.use('/api/applied-maids', appliedMaidsRoutes);
 app.use('/api/booked-maids', bookedMaidsRoutes);
-
 app.use('/api/roommates', roommateRoutes);
 app.use('/api/house-rent', houseRentRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 // Health endpoint to inspect server port and DB connection
 app.get('/health', (req, res) => {
