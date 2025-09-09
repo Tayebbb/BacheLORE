@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ADMIN_CODE = 'choton2025'; // fallback only; backend will issue JWT
+const ADMIN_CODE = 'choton2025'; 
 
 export default function AdminLogin() {
   const [code, setCode] = useState('');

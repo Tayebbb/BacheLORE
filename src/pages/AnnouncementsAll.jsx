@@ -33,7 +33,7 @@ export default function AnnouncementsAll() {
     let cancelled = false;
     const timer = setTimeout(async () => {
       try {
-        // fetch all announcements once when searching; use a large limit
+     
         if (!allAnnouncements) {
           const res = await fetch(`/api/announcements?page=1&limit=1000`);
           const data = await res.json();
