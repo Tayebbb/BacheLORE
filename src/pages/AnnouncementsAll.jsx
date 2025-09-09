@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function AnnouncementsAll() {
   const [announcements, setAnnouncements] = useState([]);
-  const [allAnnouncements, setAllAnnouncements] = useState(null); // cache for search
+  const [allAnnouncements, setAllAnnouncements] = useState(null); 
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,7 +10,7 @@ export default function AnnouncementsAll() {
   const pageSize = 5;
 
   useEffect(() => {
-    // If searching, don't load paginated page results here
+   
     if (searchTerm && searchTerm.length > 0) return;
     fetch(`/api/announcements?page=${page}&limit=${pageSize}`)
       .then(res => res.json())
@@ -22,7 +22,7 @@ export default function AnnouncementsAll() {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  // Debounced search effect: when user types, fetch all announcements once and filter locally
+
   useEffect(() => {
     const term = (searchTerm || '').trim().toLowerCase();
     if (!term) {
