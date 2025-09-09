@@ -12,6 +12,8 @@ export default function AdminDashboard() {
   const [booked, setBooked] = useState([])
   const [appliedMaids, setAppliedMaids] = useState([])
   const [bookedMaids, setBookedMaids] = useState([])
+  const [tuitionsList, setTuitionsList] = useState([])
+  const [maidsList, setMaidsList] = useState([])
   const [appliedRoommates, setAppliedRoommates] = useState([])
   const [unverifiedHouseRent, setUnverifiedHouseRent] = useState([])
   const [appliedToHost, setAppliedToHost] = useState([])
@@ -110,13 +112,16 @@ export default function AdminDashboard() {
           fetch('/api/roommates/applied', { headers }),
           fetch('/api/house-rent/admin/unverified', { headers })
         ]);
-        const [aJson, bJson, amJson, bmJson, arJson, uhJson] = await Promise.all([aRes.json(), bRes.json(), amRes.json(), bmRes.json(), arRes.json(), uhRes.json()]);
-        if(aRes.ok) setApplied(aJson);
-        if(bRes.ok) setBooked(bJson);
-        if(amRes.ok) setAppliedMaids(amJson);
-        if(bmRes.ok) setBookedMaids(bmJson);
-        if(arRes.ok) setAppliedRoommates(arJson);
-        if(uhRes.ok) setUnverifiedHouseRent(uhJson);
+  const [aJson, bJson, amJson, bmJson, arJson, uhJson, tJson, mJson] = await Promise.all([aRes.json(), bRes.json(), amRes.json(), bmRes.json(), arRes.json(), uhRes.json(), (await fetch('/api/tuitions', { headers })).json(), (await fetch('/api/maids', { headers })).json()]);
+  if(aRes.ok) setApplied(aJson);
+  if(bRes.ok) setBooked(bJson);
+  if(amRes.ok) setAppliedMaids(amJson);
+  if(bmRes.ok) setBookedMaids(bmJson);
+  if(arRes.ok) setAppliedRoommates(arJson);
+  if(uhRes.ok) setUnverifiedHouseRent(uhJson);
+  // set lookups for display
+  setTuitionsList(Array.isArray(tJson) ? tJson : []);
+  setMaidsList(Array.isArray(mJson) ? mJson : []);
         // fetch applications to host listings (applicant + host/listing)
         try{
           const athRes = await fetch('/api/roommates/applied-to-host', { headers });
@@ -312,7 +317,11 @@ export default function AdminDashboard() {
                   <div key={a._id} className="list-group-item d-flex justify-content-between align-items-start">
                     <div>
                       <div className="fw-bold">{a.name} — {a.email}</div>
-                      <div className="small muted">Applied for ID: {a.tuitionId}</div>
+                      <div className="small muted">Applied for: {(() => {
+                        const t = tuitionsList.find(x => String(x._id) === String(a.tuitionId));
+                        if(t) return `${t.title || t.subject}`;
+                        return a.tuitionId;
+                      })()}</div>
                     </div>
                     <div className="d-flex gap-2">
                       <button className="btn btn-sm btn-success" onClick={() => verifyApplication(a._id)}>Verify & Book</button>
@@ -340,7 +349,11 @@ export default function AdminDashboard() {
                   <div key={a._id} className="list-group-item d-flex justify-content-between align-items-start">
                     <div>
                       <div className="fw-bold">{a.name} — {a.email}</div>
-                      <div className="small muted">Applied for Maid ID: {a.maidId}</div>
+                      <div className="small muted">Applied for: {(() => {
+                        const m = maidsList.find(x => String(x._id) === String(a.maidId));
+                        if(m) return `${m.name}`;
+                        return a.maidId;
+                      })()}</div>
                     </div>
                     <div className="d-flex gap-2">
                       <button className="btn btn-sm btn-success" onClick={() => verifyMaidApplication(a._id)}>Verify & Book</button>
