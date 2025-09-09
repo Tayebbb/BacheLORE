@@ -1,12 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@400;600&display=swap');
 
+/* Apple-inspired color palette */
+:root {
+  --bachelore-blue: #0A1F44;
+  --bachelore-navy: #122C4A;
+  --bachelore-light: #F0F2F5;
+  --bachelore-cyan: #00B8D9;
+  --bachelore-green: #30D158;
+  --bachelore-red: #FF453A;
+  --bachelore-yellow: #FFD60A;
+  --bachelore-orange: #FF9F0A;
+  --bachelore-purple: #BF5AF2;
+  --bachelore-gray: #8E8E93;
+  --bachelore-dark-gray: #48484A;
+  --bachelore-gradient: linear-gradient(90deg, #30D158 0%, #00B8D9 50%, #BF5AF2 100%);
+  --bachelore-glass: rgba(255,255,255,0.12);
+}
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
   font-family: 'Poppins', 'Inter', sans-serif;
-  background: #0A1F44;
-  color: #F0F2F5;
+  background: var(--bachelore-blue);
+  color: var(--bachelore-light);
   overflow-x: hidden;
 }
 
@@ -140,18 +156,20 @@ html, body {
   padding: 1rem 2rem;
   border-radius: 0.75rem;
   text-decoration: none;
-  font-weight: 700;
+  background: var(--bachelore-navy);
   font-size: 1.1rem;
   box-shadow: 0 4px 24px rgba(0,184,217,0.15);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+  box-shadow: 0 2px 16px 0 rgba(10,31,68,0.08);
+  backdrop-filter: blur(8px);
 .auth-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 32px rgba(0,184,217,0.22);
 }
 
-.services-container {
+  color: var(--bachelore-cyan);
   background: rgba(18, 44, 74, 0.95);
   box-shadow: 0 8px 32px rgba(10,31,68,0.18);
   padding: 1.5rem 1rem;
@@ -171,19 +189,22 @@ html, body {
 }
 
 .cards-grid {
-  display: grid;
+  color: var(--bachelore-light);
   gap: 1.25rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .card {
   background: #122C4A;
-  border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(10,31,68,0.08);
+ .navbar-links a:hover, .navbar-links a.active {
+  color: var(--bachelore-navy);
+  background: var(--bachelore-cyan);
+  text-shadow: 0 2px 8px var(--bachelore-glass);
   padding: 2rem;
   text-align: center;
   transition: transform 0.2s, box-shadow 0.2s;
-}
+/* Card improvements */
+  background: var(--bachelore-navy);
 
 .card:hover {
   transform: scale(1.03);
