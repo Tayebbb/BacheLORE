@@ -1,3 +1,5 @@
+import marketplaceRoutes from './routes/marketplace.js';
+app.use('/api/marketplace', marketplaceRoutes);
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
