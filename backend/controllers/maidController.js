@@ -91,10 +91,7 @@ export const verifyMaidApplication = async (req, res) => {
     const maid = await Maid.findById(app.maidId);
     if(!maid) return res.status(404).json({ msg: 'Maid not found' });
 
-    // Expect admin to send duration in hours (number) in body.hours when verifying
-    const hours = Number(req.body.hours) || 1;
-    const busyUntil = new Date(Date.now() + hours * 60 * 60 * 1000);
-
+    // Create booked record without marking a fixed busy duration
     const booked = new BookedMaid({
       maidRef: maid._id,
       name: maid.name || 'Maid',
@@ -105,11 +102,11 @@ export const verifyMaidApplication = async (req, res) => {
       applicantEmail: app.email || 'unknown@example.com',
       applicantContact: app.contact || 'N/A',
       message: app.message || '',
-      busyUntil
+      // busyUntil intentionally left unset
     });
     await booked.save();
     await AppliedMaid.findByIdAndDelete(appId);
-    await Maid.findByIdAndDelete(maid._id);
+    // Do not delete the original Maid entry — keep listing for admin to manage
     res.json({ msg: 'Maid booking verified and marked busy', booked });
   }catch(err){ res.status(500).json({ error: err.message }); }
 };
