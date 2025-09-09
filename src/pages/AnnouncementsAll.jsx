@@ -21,8 +21,6 @@ export default function AnnouncementsAll() {
   }, [page, searchTerm]);
 
   const totalPages = Math.ceil(total / pageSize);
-
-
   useEffect(() => {
     const term = (searchTerm || '').trim().toLowerCase();
     if (!term) {

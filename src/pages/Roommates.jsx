@@ -2,24 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { ROOMMATES_SAMPLE as demo } from '../data/samples'
 import ListingCard from '../components/ListingCard'
 import { getUser } from '../lib/auth'
-
 export default function Roommates(){
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
   const [listings, setListings] = useState([]);
   const [form, setForm] = useState({ name: '', email: '', contact: '', location: '', roomsAvailable: '', details: '' });
-
   useEffect(()=>{
     const u = getUser();
     setUser(u);
     const load = async ()=>{
       if(u){
-        // try fetch my listing
         try{ const r = await fetch(`/api/roommates/${u.id}/listing`); if(r.ok){ const j = await r.json(); setListing(j); setForm({ name: j.name||'', email: j.email||'', contact: j.contact||'', location: j.location||'', roomsAvailable: j.roomsAvailable||'', details: j.details||'' }); } }
         catch(e){}
       }
-      // fetch public listings (seekers only) - if user is host, backend will reject; in that case show demo
       try{
         const uid = u ? u.id : '';
         const r = await fetch(`/api/roommates/listings?userId=${uid}`);
@@ -30,7 +26,6 @@ export default function Roommates(){
     }
     load();
   },[]);
-
   const applyAsHost = async (e) => {
     e.preventDefault();
     if(!user) return alert('Please login to apply as host');
