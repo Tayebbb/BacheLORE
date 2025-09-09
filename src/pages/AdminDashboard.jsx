@@ -479,7 +479,7 @@ export default function AdminDashboard() {
                   <div key={b._id} className="list-group-item d-flex justify-content-between align-items-start">
                     <div>
                       <div className="fw-bold">{b.name} — {b.location}</div>
-                      <div className="small muted">Booked by: {b.applicantName} ({b.applicantEmail}) • Busy until: {new Date(b.busyUntil).toLocaleString()}</div>
+                      <div className="small muted">Booked by: {b.applicantName} ({b.applicantEmail})</div>
                     </div>
                     <div className="d-flex gap-2">
                       <button className="btn btn-sm btn-warning" onClick={() => unbookMaid(b._id)}>Unbook</button>

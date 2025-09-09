@@ -10,7 +10,8 @@ const BookedMaidSchema = new mongoose.Schema({
   applicantEmail: { type: String, required: true },
   applicantContact: { type: String, required: true },
   message: { type: String },
-  busyUntil: { type: Date, required: true },
+  // busyUntil is deprecated/optional: we no longer mark a fixed busy duration when admin verifies
+  busyUntil: { type: Date },
   bookedAt: { type: Date, default: Date.now }
 });
 
