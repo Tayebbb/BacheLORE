@@ -17,7 +17,9 @@ export default function AdminDashboard() {
   const [appliedRoommates, setAppliedRoommates] = useState([])
   const [unverifiedHouseRent, setUnverifiedHouseRent] = useState([])
   const [appliedToHost, setAppliedToHost] = useState([])
+  const [bookedRoommates, setBookedRoommates] = useState([])
   const [houseForm, setHouseForm] = useState({ title: '', description: '', location: '', price: '', rooms: '', contact: '' });
+   const [roommateForm, setRoommateForm] = useState({ ownerId: '', name: '', email: '', contact: '', location: '', roomsAvailable: '', details: '' });
 
   // Check admin
   React.useEffect(() => {
@@ -126,6 +128,9 @@ export default function AdminDashboard() {
         try{
           const athRes = await fetch('/api/roommates/applied-to-host', { headers });
           if(athRes.ok){ const athJson = await athRes.json(); setAppliedToHost(athJson); }
+          // load booked roommates
+          const brRes = await fetch('/api/roommates/booked', { headers });
+          if(brRes.ok){ const brJson = await brRes.json(); setBookedRoommates(brJson); }
         }catch(e){ console.error('Failed loading applied-to-host', e); }
       }catch(e){ console.error(e); }
     }
@@ -169,7 +174,21 @@ export default function AdminDashboard() {
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(`/api/roommates/applied/${id}/verify`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
       const data = await res.json();
-      if(res.ok){ setMsg('Roommate verified and listed.'); setAppliedRoommates(a => a.filter(x=> x._id !== id)); }
+  if(res.ok){ setMsg('Roommate verified and listed.'); setAppliedRoommates(a => a.filter(x=> x._id !== id)); if(data.booked) setBookedRoommates(b => [data.booked, ...b]); }
+      else setError(data.msg || data.error || 'Error verifying');
+    }catch(err){ setError('Network error'); }
+  }
+
+  // verify an application that was submitted to a host listing (creates booked roommate)
+  const verifyApplicationToHost = async (id) => {
+    setMsg(''); setError('');
+    try{
+      const token = localStorage.getItem('adminToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/roommates/applied-to-host/${id}/verify`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if(res.ok){ setMsg('Application verified.'); setAppliedToHost(a => a.filter(x=> x._id !== id)); setBookedRoommates(b => [data.booked, ...b]); }
       else setError(data.msg || data.error || 'Error verifying');
     }catch(err){ setError('Network error'); }
   }
@@ -306,6 +325,33 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+      <div className="col-md-6 mt-3">
+        <div className="card p-3">
+          <h4>Post Roommate Listing (admin)</h4>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setMsg(''); setError('');
+            try{
+              const token = localStorage.getItem('adminToken');
+              const headers = { 'Content-Type': 'application/json' };
+              if (token) headers['Authorization'] = `Bearer ${token}`;
+              const res = await fetch('/api/roommates/admin/create', { method: 'POST', headers, body: JSON.stringify({ ...roommateForm, adminCode }) });
+              const data = await res.json();
+              if(res.ok){ setMsg('Roommate listing created.'); setRoommateForm({ ownerId: '', name: '', email: '', contact: '', location: '', roomsAvailable: '', details: '' }); }
+              else setError(data.msg || data.error || 'Error creating roommate listing');
+            }catch(err){ setError('Network error'); }
+          }}>
+            <input className="form-control mb-2" placeholder="Owner userId (optional)" value={roommateForm.ownerId} onChange={e => setRoommateForm(r => ({ ...r, ownerId: e.target.value }))} />
+            <input className="form-control mb-2" placeholder="Name" value={roommateForm.name} onChange={e => setRoommateForm(r => ({ ...r, name: e.target.value }))} />
+            <input className="form-control mb-2" placeholder="Email" value={roommateForm.email} onChange={e => setRoommateForm(r => ({ ...r, email: e.target.value }))} />
+            <input className="form-control mb-2" placeholder="Contact" value={roommateForm.contact} onChange={e => setRoommateForm(r => ({ ...r, contact: e.target.value }))} />
+                        <input className="form-control mb-2" placeholder="Location" value={roommateForm.location} onChange={e => setRoommateForm(r => ({ ...r, location: e.target.value }))} />
+            <input className="form-control mb-2" placeholder="Rooms available" value={roommateForm.roomsAvailable} onChange={e => setRoommateForm(r => ({ ...r, roomsAvailable: e.target.value }))} />
+            <textarea className="form-control mb-2" placeholder="Details" value={roommateForm.details} onChange={e => setRoommateForm(r => ({ ...r, details: e.target.value }))} />
+            <button className="btn btn-primary w-100" type="submit">Create Roommate Listing</button>
+          </form>
+        </div>
+      </div>
       {(msg || error) && <div className={`alert ${msg ? 'alert-success' : 'alert-danger'} mt-3`}>{msg || error}</div>}
       <div className="row mt-4">
         <div className="col-md-6">
@@ -406,14 +452,7 @@ export default function AdminDashboard() {
                       <div className="mt-2">Message: {a.message}</div>
                     </div>
                     <div className="d-flex gap-2">
-                      <button className="btn btn-sm btn-success" onClick={async ()=>{
-                        // verify application: here we can mark as handled by deleting the application or notifying host; reuse delete for now
-                        const token = localStorage.getItem('adminToken');
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (token) headers['Authorization'] = `Bearer ${token}`;
-                        const res = await fetch(`/api/roommates/applied/${a._id}`, { method: 'DELETE', headers });
-                        if(res.ok) setAppliedToHost(prev => prev.filter(x=> x._id !== a._id));
-                      }}>Mark handled</button>
+                        <button className="btn btn-sm btn-success" onClick={async ()=>{ await verifyApplicationToHost(a._id); }}>Mark handled</button>
                       <button className="btn btn-sm btn-outline-secondary" onClick={async ()=>{
                         const token = localStorage.getItem('adminToken');
                         const headers = { 'Content-Type': 'application/json' };
@@ -429,27 +468,35 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="col-md-6 mt-3">
-          <div className="card p-3">
-            <h4>Unverified House Rent Listings</h4>
-            {unverifiedHouseRent.length === 0 ? <div className="muted">No unverified listings</div> : (
-              <div className="list-group">
-                {unverifiedHouseRent.map(h => (
-                  <div key={h._id} className="list-group-item d-flex justify-content-between align-items-start">
-                    <div>
-                      <div className="fw-bold">{h.title} — {h.location}</div>
-                      <div className="small muted">Posted by: {h.ownerRef} • Price: {h.price}</div>
+          <div className="col-md-6 mt-3">
+            <div className="card p-3">
+              <h4>Booked Roommates</h4>
+              {bookedRoommates.length === 0 ? <div className="muted">No booked roommates</div> : (
+                <div className="list-group">
+                  {bookedRoommates.map(b => (
+                    <div key={b._id} className="list-group-item d-flex justify-content-between align-items-start">
+                      <div>
+                        <div className="fw-bold">Host: {b.hostName || (b.hostRef && b.hostRef.fullName)} — {b.location}</div>
+                        <div className="small muted">Settler: {b.applicantName} ({b.applicantEmail})</div>
+                        <div className="mt-2">Message: {b.message}</div>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-sm btn-warning" onClick={async ()=>{
+                          const token = localStorage.getItem('adminToken');
+                          const headers = { 'Content-Type': 'application/json' };
+                          if (token) headers['Authorization'] = `Bearer ${token}`;
+                          const res = await fetch(`/api/roommates/booked/${b._id}/unbook`, { method: 'POST', headers, body: JSON.stringify({ adminCode }) });
+                          if(res.ok) setBookedRoommates(prev => prev.filter(x=> x._id !== b._id));
+                        }}>Unbook</button>
+                      </div>
                     </div>
-                    <div className="d-flex gap-2">
-                      <button className="btn btn-sm btn-success" onClick={() => verifyHouseListing(h._id)}>Verify</button>
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => deleteHouseListing(h._id)}>Delete</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+
+       
         <div className="col-md-6">
           <div className="card p-3">
             <h4>Booked Tuitions</h4>
@@ -503,3 +550,4 @@ export default function AdminDashboard() {
     )
   }
 }
+

@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import bg1image from "../assets/bg1image.jpg";
 import "../App.css";
-import { ROOMMATE_LISTINGS as demoListings } from '../data/samples'
+const demoListings = [];
 
 export default function RoommateFinder() {
   const [q, setQ] = useState("");
@@ -31,9 +31,7 @@ export default function RoommateFinder() {
         <main className="rm-page">
           <header className="rm-hero">
             <h1 className="rm-title">Roommate Finder</h1>
-            <p className="rm-subtitle">
-              Filter listings by area, budget, and preferences. This is a demo — hook your backend later.
-            </p>
+            <p className="rm-subtitle">Filter listings by area, budget, and preferences.</p>
           </header>
 
           <section className="rm-filters">

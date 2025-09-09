@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import AppliedRoommate from '../models/AppliedRoommate.js';
 import RoommateListing from '../models/RoommateListing.js';
 import AppliedToHost from '../models/AppliedToHost.js';
+import BookedRoommate from '../models/BookedRoommate.js';
 import jwt from 'jsonwebtoken';
 
 const ADMIN_CODE = process.env.ADMIN_CODE || 'choton2025';
@@ -49,6 +50,22 @@ export const listAppliedRoommates = async (req, res) => {
   try{ const list = await AppliedRoommate.find().sort({ createdAt: -1 }); res.json(list); } catch(err){ res.status(500).json({ error: err.message }); }
 }
 
+// create an application to a host listing (stores in AppliedRoommate collection)
+export const createAppliedRoommate = async (req, res) => {
+  try{
+    const { listingId, applicantId, name, email, contact, message } = req.body;
+    // try to resolve applicant when provided
+    let userRef = null;
+    if(applicantId){ try{ const u = await User.findById(applicantId); if(u) userRef = u._id; }catch(e){} }
+    // try to get listing location/name if listingId provided
+    let listingInfo = {};
+    if(listingId){ try{ const l = await RoommateListing.findById(listingId); if(l){ listingInfo.location = l.location || ''; listingInfo.name = l.name || ''; } }catch(e){} }
+    const app = new AppliedRoommate({ userRef, name: name || '', email: email || '', contact: contact || '', location: listingInfo.location || '', roomsAvailable: listingInfo.roomsAvailable || '', message: message || '' });
+    await app.save();
+    res.status(201).json({ msg: 'Application submitted', application: app });
+  }catch(err){ res.status(500).json({ error: err.message }); }
+}
+
 export const verifyAppliedRoommate = async (req, res) => {
   try{
     const isAdmin = await isAdminFromReq(req);
@@ -56,18 +73,40 @@ export const verifyAppliedRoommate = async (req, res) => {
     const id = req.params.id;
     const app = await AppliedRoommate.findById(id);
     if(!app) return res.status(404).json({ msg: 'Application not found' });
-    const user = await User.findById(app.userRef);
-    if(!user) return res.status(404).json({ msg: 'User not found' });
-    // create listing
-    const listing = new RoommateListing({ userRef: user._id, name: app.name || user.fullName || '', email: app.email || user.email || '', contact: app.contact || user.phone || '', location: app.location || '', roomsAvailable: app.roomsAvailable || '', details: app.message || '' });
+    // try to resolve a linked user if present; otherwise proceed without user
+    let user = null;
+    if(app.userRef){ try{ user = await User.findById(app.userRef); }catch(e){ user = null; } }
+    // create listing; if we have a user use their id and defaults
+    const listing = new RoommateListing({ userRef: user ? user._id : undefined, name: app.name || (user ? user.fullName : '') || '', email: app.email || (user ? user.email : '') || '', contact: app.contact || (user ? user.phone : '') || '', location: app.location || '', roomsAvailable: app.roomsAvailable || '', details: app.message || '' });
     await listing.save();
-    // remove application
-    await AppliedRoommate.findByIdAndDelete(id);
-    // ensure user flagged as Host
-    user.roommateCategory = 'HostRoommate';
-    user.isAvailableAsHost = true;
-    await user.save();
-    res.json({ msg: 'Verified and listed', listing });
+    // if we have a user, mark as host available
+    if(user){ user.roommateCategory = 'HostRoommate'; user.isAvailableAsHost = true; await user.save(); }
+    // create a booked roommate entry so it appears in the booked section
+    try{
+      const booked = new BookedRoommate({
+        listingRef: listing._id,
+        hostRef: user ? user._id : undefined,
+        hostName: listing.name || (user && user.fullName) || '',
+        hostEmail: listing.email || (user && user.email) || '',
+        hostContact: listing.contact || '',
+        location: listing.location || '',
+        roomsAvailable: listing.roomsAvailable || '',
+        details: listing.details || '',
+        applicantRef: app.userRef || undefined,
+        applicantName: app.name || '',
+        applicantEmail: app.email || '',
+        applicantContact: app.contact || '',
+        message: app.message || ''
+      });
+      await booked.save();
+      // remove application
+      await AppliedRoommate.findByIdAndDelete(id);
+      res.json({ msg: 'Verified, listed and booked', listing, booked });
+    }catch(e){
+      // if booked creation fails, still remove application and return listing
+      await AppliedRoommate.findByIdAndDelete(id);
+      res.json({ msg: 'Verified and listed (book creation failed)', listing });
+    }
   }catch(err){ res.status(500).json({ error: err.message }); }
 }
 
@@ -83,28 +122,56 @@ export const deleteAppliedRoommate = async (req, res) => {
 
 export const listRoommateListings = async (req, res) => {
   try{
-    // only return listings to seekers
-    const userId = req.query.userId;
-    if(!userId) return res.status(400).json({ msg: 'userId query required to filter by role' });
-    const user = await User.findById(userId);
-    if(!user) return res.status(404).json({ msg: 'User not found' });
-    if(user.roommateCategory === 'HostRoommate') return res.status(403).json({ msg: 'Hosts cannot view listings' });
-    const list = await RoommateListing.find().sort({ createdAt: -1 });
-    res.json(list);
+  // Return all roommate listings. Previously this endpoint required a userId and
+  // blocked hosts from viewing listings; that prevented admin-posted listings
+  // from being visible in some cases. Make listings public to clients.
+  const list = await RoommateListing.find().sort({ createdAt: -1 });
+  res.json(list);
   }catch(err){ res.status(500).json({ error: err.message }); }
 }
 
-// create or update listing for a user (apply as host) - visible immediately
+  // admin: create a roommate listing directly (ties to an existing user ownerId)
+  export const adminCreateListing = async (req, res) => {
+    try{
+      const isAdmin = await isAdminFromReq(req);
+      if(!isAdmin) return res.status(403).json({ msg: 'Forbidden' });
+      const { ownerId, name, email, contact, location, roomsAvailable, details } = req.body;
+      let user = null;
+      let userRef = null;
+      // attempt to resolve ownerId safely: accept ObjectId string or an email
+      if(ownerId){
+        try{
+          // if valid ObjectId, try finding by id
+          if(ownerId && ownerId.match && ownerId.match(/^[0-9a-fA-F]{24}$/)){
+            user = await User.findById(ownerId);
+            if(user) userRef = user._id;
+          } else if(ownerId && ownerId.includes('@')){
+            // maybe an email
+            user = await User.findOne({ email: ownerId });
+            if(user) userRef = user._id;
+          }
+        }catch(e){ /* ignore resolution errors */ }
+      }
+      // create listing; if we found a user use their fields as defaults
+      const listing = new RoommateListing({ userRef: userRef, name: name || (user ? user.fullName : '') || '', email: email || (user ? user.email : '') || '', contact: contact || (user ? user.phone : '') || '', location: location || '', roomsAvailable: roomsAvailable || '', details: details || '' });
+      await listing.save();
+      // mark owner as host and available
+      if(user){ user.roommateCategory = 'HostRoommate'; user.isAvailableAsHost = true; await user.save(); }
+      res.status(201).json({ msg: 'Listing created', listing });
+    }catch(err){ res.status(500).json({ error: err.message }); }
+  }
+
+
 export const applyAsHost = async (req, res) => {
   try{
     const userId = req.params.userId;
     const { name, email, contact, location, roomsAvailable, details } = req.body;
     const user = await User.findById(userId);
     if(!user) return res.status(404).json({ msg: 'User not found' });
-    // find existing listing
+  
     let listing = await RoommateListing.findOne({ userRef: user._id });
     if(listing){
-      // update
+    
       listing.name = name || listing.name || user.fullName || '';
       listing.email = email || listing.email || user.email || '';
       listing.contact = contact || listing.contact || user.phone || '';
@@ -116,7 +183,7 @@ export const applyAsHost = async (req, res) => {
       listing = new RoommateListing({ userRef: user._id, name: name || user.fullName || '', email: email || user.email || '', contact: contact || user.phone || '', location: location || '', roomsAvailable: roomsAvailable || '', details: details || '' });
       await listing.save();
     }
-    // mark user as host and available
+  
     user.roommateCategory = 'HostRoommate';
     user.isAvailableAsHost = true;
     await user.save();
@@ -154,7 +221,7 @@ export const deleteMyListing = async (req, res) => {
   try{
     const userId = req.params.userId;
     await RoommateListing.findOneAndDelete({ userRef: userId });
-    // also update user flag
+   
     const user = await User.findById(userId);
     if(user){ user.isAvailableAsHost = false; user.roommateCategory = user.roommateCategory === 'HostRoommate' ? '' : user.roommateCategory; await user.save(); }
     res.json({ msg: 'Removed listing' });
@@ -167,7 +234,7 @@ export const applyToHost = async (req, res) => {
     const { applicantId, name, email, message } = req.body;
     const listing = await RoommateListing.findById(listingId);
     if(!listing) return res.status(404).json({ msg: 'Listing not found' });
-    // try to resolve applicant user when provided
+  
     let applicantRef = null;
     let applicantName = name || '';
     let applicantEmail = email || '';
@@ -177,7 +244,7 @@ export const applyToHost = async (req, res) => {
     }
     const app = new AppliedToHost({ listingRef: listing._id, applicantRef, name: applicantName, email: applicantEmail, message: message || '' });
     await app.save();
-    // return populated application for convenience
+
     const populated = await AppliedToHost.findById(app._id)
       .populate('applicantRef', 'fullName email')
       .populate({ path: 'listingRef', populate: { path: 'userRef', model: 'User', select: 'fullName email' } });
@@ -193,5 +260,61 @@ export const listAppliedToHost = async (req, res) => {
       .populate('applicantRef', 'fullName email')
       .populate({ path: 'listingRef', populate: { path: 'userRef', select: 'fullName email' } });
     res.json(list);
+  }catch(err){ res.status(500).json({ error: err.message }); }
+}
+
+
+export const verifyAppliedToHost = async (req, res) => {
+  try{
+    const isAdmin = await isAdminFromReq(req);
+    if(!isAdmin) return res.status(403).json({ msg: 'Forbidden' });
+    const id = req.params.id;
+    const app = await AppliedToHost.findById(id).populate({ path: 'listingRef', populate: { path: 'userRef', select: 'fullName email phone' } });
+    if(!app) return res.status(404).json({ msg: 'Application not found' });
+    const listing = app.listingRef;
+    if(!listing) return res.status(404).json({ msg: 'Listing not found' });
+ 
+    const booked = new BookedRoommate({
+      listingRef: listing._id,
+      hostRef: listing.userRef || null,
+      hostName: listing.name || (listing.userRef && listing.userRef.fullName) || '',
+      hostEmail: listing.email || (listing.userRef && listing.userRef.email) || '',
+      hostContact: listing.contact || '',
+      location: listing.location || '',
+      roomsAvailable: listing.roomsAvailable || '',
+      details: listing.details || '',
+      applicantRef: app.applicantRef || null,
+      applicantName: app.name || (app.applicantRef && app.applicantRef.fullName) || '',
+      applicantEmail: app.email || (app.applicantRef && app.applicantRef.email) || '',
+      message: app.message || ''
+    });
+    await booked.save();
+   
+    await AppliedToHost.findByIdAndDelete(id);
+    res.json({ msg: 'Application verified and roommate booked', booked });
+  }catch(err){ res.status(500).json({ error: err.message }); }
+}
+
+
+export const listBookedRoommates = async (req, res) => {
+  try{
+    const isAdmin = await isAdminFromReq(req);
+    if(!isAdmin) return res.status(403).json({ msg: 'Forbidden' });
+    const list = await BookedRoommate.find().sort({ bookedAt: -1 })
+      .populate('listingRef')
+      .populate('hostRef', 'fullName email')
+      .populate('applicantRef', 'fullName email');
+    res.json(list);
+  }catch(err){ res.status(500).json({ error: err.message }); }
+}
+
+
+export const unbookRoommate = async (req, res) => {
+  try{
+    const isAdmin = await isAdminFromReq(req);
+    if(!isAdmin) return res.status(403).json({ msg: 'Forbidden' });
+    const id = req.params.id;
+    await BookedRoommate.findByIdAndDelete(id);
+    res.json({ msg: 'Unbooked' });
   }catch(err){ res.status(500).json({ error: err.message }); }
 }

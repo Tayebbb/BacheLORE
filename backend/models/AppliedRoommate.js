@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const AppliedRoommateSchema = new mongoose.Schema({
-  userRef: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userRef: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   name: { type: String },
   email: { type: String },
   contact: { type: String },
