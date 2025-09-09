@@ -22,10 +22,17 @@ async function isAdminFromReq(req){
 }
 
 export const listBooked = async (req, res) => {
-  try{
-    const list = await BookedTuition.find().sort({ bookedAt: -1 });
+  try {
+    const { tuitionId, email } = req.query;
+    let filter = {};
+    if (tuitionId) filter.tuitionRef = tuitionId;
+    if (email) filter.applicantEmail = email;
+    const list = await BookedTuition.find(filter).sort({ bookedAt: -1 });
     res.json(list);
-  }catch(err){ console.error('verifyApplication error', err); res.status(500).json({ error: err.message || String(err) }); }
+  } catch (err) {
+    console.error('verifyApplication error', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
 }
 
 export const verifyApplication = async (req, res) => {

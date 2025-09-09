@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import Announcements from '../components/Announcements'
 import { Link } from 'react-router-dom'
 
+
 import FEATURES from '../data/features'
 import useCarouselAutoplay from '../hooks/useCarouselAutoplay'
 import FeatureCard from '../components/FeatureCard'
+import ActivityFeed from '../components/ActivityFeed.jsx';
 
 export default function Home() {
   const [email, setEmail] = useState('')
@@ -84,29 +86,7 @@ export default function Home() {
             <h3 className="panel-title">Recent activity</h3>
             <p className="muted panel-sub">Your latest trips through the app — quick access to recent searches, bookings, and listings.</p>
             <div className="mt-3 activity-panel">
-              <ul className="list-group">
-                <li className="list-group-item">
-                  <div>
-                    <div className="fw-bold">Booked maid: Cleaning for 2 hours</div>
-                    <div className="muted small">Today • 10:30 AM</div>
-                  </div>
-                  <Link to="/maids" className="btn btn-sm btn-ghost">View</Link>
-                </li>
-                <li className="list-group-item">
-                  <div>
-                    <div className="fw-bold">Posted item for sale: Used desk</div>
-                    <div className="muted small">Yesterday • Marketplace</div>
-                  </div>
-                  <Link to="/marketplace" className="btn btn-sm btn-ghost">Open</Link>
-                </li>
-                <li className="list-group-item">
-                  <div>
-                    <div className="fw-bold">Found roommate: Khalid</div>
-                    <div className="muted small">3 days ago • Roommates</div>
-                  </div>
-                  <Link to="/roommates" className="btn btn-sm btn-ghost">Open</Link>
-                </li>
-              </ul>
+              <ActivityFeed />
             </div>
           </div>
           <div className="col-lg-4 mt-4 mt-lg-0">

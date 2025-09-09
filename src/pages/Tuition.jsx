@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from '../components/axios'
 import { getUser } from '../lib/auth'
+import TuitionDetailsModal from '../components/TuitionDetailsModal.jsx'
 
 
 export default function Tuition(){
@@ -65,17 +66,12 @@ export default function Tuition(){
                         const ev = new CustomEvent('openApplyModal', { detail: { tuition: job } });
                         window.dispatchEvent(ev);
                       }}>Apply</button>
-                      <button className="btn btn-outline-secondary btn-sm" aria-expanded={openId === job._id} onClick={() => setOpenId(openId === job._id ? null : job._id)}>Contact</button>
+                      <button className="btn btn-outline-secondary btn-sm" onClick={() => {
+                        const ev = new CustomEvent('openTuitionDetails', { detail: { tuition: job } });
+                        window.dispatchEvent(ev);
+                      }}>Description</button>
                     </div>
-                    <div className="tuition-details mt-3" style={{ display: openId === job._id ? 'block' : 'none' }}>
-                      <ul className="list-unstyled small mb-0">
-                        <li><strong>Subject:</strong> {job.subject}</li>
-                        <li><strong>Days:</strong> {job.days}</li>
-                        <li><strong>Description:</strong> {job.description}</li>
-                        <li><strong>Contact:</strong> {job.contact}</li>
-                        <li className="mt-1"><strong>Posted:</strong> {new Date(job.createdAt).toLocaleString()}</li>
-                      </ul>
-                    </div>
+                    {/* Details modal handled globally */}
                   </div>
                 </article>
               </div>
@@ -84,8 +80,9 @@ export default function Tuition(){
         )}
       </div>
 
-      {/* Apply modal (global simple implementation) */}
-      <ApplyModal />
+  {/* Modals (global simple implementation) */}
+  <ApplyModal />
+  <TuitionDetailsModal />
     </main>
   )
 }
@@ -114,7 +111,7 @@ function ApplyModal(){
 
   const submit = async () => {
     if (!tuition) return;
-    if (!name || !email || !contact) { setStatus('Please provide name, email and contact'); return; }
+  if (!name || !email || !contact || !message.trim()) { setStatus('Please provide name, email, contact, and profile'); return; }
     setStatus('Submitting...');
     try{
       const res = await axios.post('/api/applied-tuitions', { tuitionId: tuition._id, name, email, contact, message });
@@ -133,7 +130,7 @@ function ApplyModal(){
   <input className="form-control mb-2" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} />
   <input className="form-control mb-2" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} />
   <input className="form-control mb-2" placeholder="Your contact (phone)" value={contact} onChange={e=>setContact(e.target.value)} />
-        <textarea className="form-control mb-2" placeholder="Message (optional)" value={message} onChange={e=>setMessage(e.target.value)} />
+  <textarea className="form-control mb-2" placeholder="Profile (required)" value={message} onChange={e=>setMessage(e.target.value)} required />
         <div className="d-flex gap-2 justify-content-end">
           <button className="btn btn-secondary" onClick={()=>setVisible(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={submit}>Submit</button>

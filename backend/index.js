@@ -13,8 +13,10 @@ import bookedTuitionsRoutes from "./routes/bookedTuitions.js";
 import maidsRoutes from "./routes/maids.js";
 import appliedMaidsRoutes from "./routes/appliedMaids.js";
 import bookedMaidsRoutes from "./routes/bookedMaids.js";
+
 import roommateRoutes from './routes/roommates.js';
 import houseRentRoutes from './routes/houseRent.js';
+import activityRoutes from './routes/activity.js';
 
 dotenv.config();
 const app = express();
@@ -32,8 +34,10 @@ app.use("/api/booked-tuitions", bookedTuitionsRoutes);
 app.use('/api/maids', maidsRoutes);
 app.use('/api/applied-maids', appliedMaidsRoutes);
 app.use('/api/booked-maids', bookedMaidsRoutes);
+
 app.use('/api/roommates', roommateRoutes);
 app.use('/api/house-rent', houseRentRoutes);
+app.use('/api/activity', activityRoutes);
 
 // Health endpoint to inspect server port and DB connection
 app.get('/health', (req, res) => {
