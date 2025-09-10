@@ -8,6 +8,12 @@ export default function Roommates(){
   const [listing, setListing] = useState(null);
   const [listings, setListings] = useState([]);
   const [form, setForm] = useState({ name: '', email: '', contact: '', location: '', roomsAvailable: '', details: '' });
+  const [flash, setFlash] = useState(null); // { text, type }
+
+  const showFlash = (text, type = 'info', ttl = 3500) => {
+    setFlash({ text, type });
+    if (ttl > 0) setTimeout(() => setFlash(null), ttl);
+  }
 
   useEffect(()=>{
     const u = getUser();
@@ -32,39 +38,39 @@ export default function Roommates(){
 
   const applyAsHost = async (e) => {
     e.preventDefault();
-    if(!user) return alert('Please login to apply as host');
+  if(!user){ showFlash('Please login to apply as host', 'info'); return }
     try{
       const res = await fetch(`/api/roommates/${user.id}/apply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       const data = await res.json();
-      if(res.ok){ setListing(data.listing); alert('You are now listed as a host'); }
-      else alert(data.msg || data.error || 'Error');
-    }catch(err){ alert('Network error'); }
+      if(res.ok){ setListing(data.listing); showFlash('You are now listed as a host', 'success'); }
+      else showFlash(data.msg || data.error || 'Error', 'error');
+    }catch(err){ showFlash('Network error', 'error'); }
   }
 
   const updateListing = async (e) => {
     e.preventDefault();
-    if(!user) return alert('Please login');
+  if(!user){ showFlash('Please login', 'info'); return }
     try{
       const res = await fetch(`/api/roommates/${user.id}/listing`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       const data = await res.json();
-      if(res.ok){ setListing(data.listing); alert('Listing updated'); }
-      else alert(data.msg || data.error || 'Error');
-    }catch(err){ alert('Network error'); }
+      if(res.ok){ setListing(data.listing); showFlash('Listing updated', 'success'); }
+      else showFlash(data.msg || data.error || 'Error', 'error');
+    }catch(err){ showFlash('Network error', 'error'); }
   }
 
   const removeListing = async () => {
-    if(!user) return alert('Please login');
-    if(!window.confirm('Remove your listing?')) return;
+  if(!user){ showFlash('Please login', 'info'); return }
+  if(!window.confirm('Remove your listing?')) return;
     try{
       const res = await fetch(`/api/roommates/${user.id}/listing`, { method: 'DELETE' });
-      if(res.ok){ setListing(null); alert('Listing removed'); }
-      else alert('Error removing');
-    }catch(err){ alert('Network error'); }
+      if(res.ok){ setListing(null); showFlash('Listing removed', 'success'); }
+      else showFlash('Error removing', 'error');
+    }catch(err){ showFlash('Network error', 'error'); }
   }
 
   // open apply modal by dispatching an event (modal handles submission)
   const applyTo = (listing) => {
-    if(!user) return alert('Please login to apply');
+  if(!user){ showFlash('Please login to apply', 'info'); return }
     const ev = new CustomEvent('openRoommateApplyModal', { detail: { listing, user } });
     window.dispatchEvent(ev);
   }
@@ -75,6 +81,12 @@ export default function Roommates(){
 
   return (
     <main className="container py-5">
+      {flash && (
+        <div className={`alert ${flash.type === 'error' ? 'alert-danger' : flash.type === 'success' ? 'alert-success' : 'alert-info'}`} role="alert">
+          {flash.text}
+          <button type="button" className="btn btn-ghost btn-sm float-end" onClick={()=>setFlash(null)}>×</button>
+        </div>
+      )}
       <h3>Roommates</h3>
       <p className="muted">Find compatible roommates.</p>
 
