@@ -52,24 +52,24 @@ const Login = () => {
       <div className="app-container">
         <Navbar />
         <AuthCard title="Login">
-          <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
-              />
-              {error && <div className="auth-error">{error}</div>}
-              <button type="submit" className="auth-btn signup-gradient-btn auth-submit-btn">Login</button>
-            </form>
+          <form className="business-form" onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="business-input"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="business-input"
+            />
+            {error && <div className="auth-error">{error}</div>}
+            <button type="submit" className="business-btn">Login</button>
+          </form>
         </AuthCard>
       </div>
     </>

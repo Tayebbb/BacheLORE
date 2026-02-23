@@ -106,6 +106,102 @@ h1,h2,h3,h4{font-family: 'Poppins', 'Inter', sans-serif;color:var(--dark)}
 .btn-primary{background:var(--primary);border-color:var(--primary)}
 .glass{backdrop-filter: blur(6px); background: rgba(255,255,255,0.6)}
 
+/* Minimal Business UI/UX inspired by Linktree */
+.split-screen {
+  display: flex;
+  min-height: 100vh;
+}
+.split-left, .split-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+.business-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 32px 24px;
+  max-width: 420px;
+  width: 100%;
+  margin: 24px auto;
+}
+.heading {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.subheading {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+.body-text {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+.business-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.business-input {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.business-input:focus {
+  border-color: #bbb;
+}
+.business-btn {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #222;
+  color: #fff;
+  transition: background 0.2s;
+}
+.business-btn:hover {
+  background: #444;
+}
+.social-icons {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+.social-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eaeaea;
+  font-size: 1.5rem;
+  transition: background 0.2s;
+}
+.social-icon:hover {
+  background: #d0d0d0;
+}
+.business-btn:focus,
+.business-input:focus {
+  outline: 2px solid #222;
+  outline-offset: 2px;
+}
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Navbar styles */
 .navbar-custom{transition:box-shadow .2s, transform .2s;}
 .navbar-custom.scrolled{box-shadow:0 6px 24px rgba(9,10,31,.12);transform:translateY(-1px)}

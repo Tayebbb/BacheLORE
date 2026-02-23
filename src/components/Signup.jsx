@@ -61,38 +61,38 @@ const Signup = () => {
       <div className="app-container">
         <Navbar />
         <AuthCard title="Sign Up">
-            <form className="auth-form" onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 340, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            <form className="business-form" onSubmit={handleSubmit}>
               <input
                 type="text"
                 placeholder="Full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
+                className="business-input"
               />
               <input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
+                className="business-input"
               />
               <input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
+                className="business-input"
               />
               <input
                 type="password"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="auth-input signup-gradient-input auth-input-styled"
+                className="business-input"
               />
               {error && <div className="auth-error">{error}</div>}
               {success && <div className="auth-success">{success}</div>}
-              <button type="submit" className="auth-btn signup-gradient-btn auth-submit-btn">Sign Up</button>
+              <button type="submit" className="business-btn">Sign Up</button>
             </form>
         </AuthCard>
       </div>
