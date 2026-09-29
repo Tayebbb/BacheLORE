@@ -28,7 +28,7 @@ export default function AdminDashboard() {
     }
   }, [navigate]);
 
-  const adminCode = 'choton2025'; // Should match backend
+  const adminCode = sessionStorage.getItem('adminCode') || '';
 
   const handleAnnouncement = async (e) => {
     e.preventDefault();
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
     return (
       <div className="container py-5">
       <h2 className="mb-4">Admin Dashboard</h2>
-      <button className="btn btn-secondary mb-4" onClick={() => { localStorage.removeItem('isAdmin'); navigate('/admin-login'); }}>Logout</button>
+      <button className="btn btn-secondary mb-4" onClick={() => { localStorage.removeItem('isAdmin'); localStorage.removeItem('adminToken'); sessionStorage.removeItem('adminCode'); navigate('/admin-login'); }}>Logout</button>
       <div className="row">
         <div className="col-md-6">
           <div className="card p-3 mb-4">

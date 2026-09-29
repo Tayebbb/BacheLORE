@@ -2,7 +2,7 @@ import Announcement from '../models/Announcement.js';
 import jwt from 'jsonwebtoken';
 
 // Simple admin check: accept JWT or adminCode as fallback
-const ADMIN_CODE = process.env.ADMIN_CODE || 'choton2025';
+const ADMIN_CODE = process.env.ADMIN_CODE;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 export const getAnnouncements = async (req, res) => {
@@ -33,7 +33,7 @@ export const createAnnouncement = async (req, res) => {
       } catch (err) { /* invalid token */ }
     }
     const adminCode = req.body.adminCode || req.query.adminCode;
-    if (!isAdmin && adminCode !== ADMIN_CODE) {
+    if (!isAdmin && (!ADMIN_CODE || adminCode !== ADMIN_CODE)) {
       return res.status(403).json({ msg: 'Forbidden: Admins only' });
     }
     const { title, message } = req.body;

@@ -1,7 +1,7 @@
 import Tuition from '../models/Tuition.js';
 import jwt from 'jsonwebtoken';
 
-const ADMIN_CODE = process.env.ADMIN_CODE || 'choton2025';
+const ADMIN_CODE = process.env.ADMIN_CODE;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 export const getTuitions = async (req, res) => {
@@ -26,7 +26,7 @@ export const createTuition = async (req, res) => {
       } catch (err) { /* invalid token */ }
     }
     const adminCode = req.body.adminCode || req.query.adminCode;
-    if (!isAdmin && adminCode !== ADMIN_CODE) {
+    if (!isAdmin && (!ADMIN_CODE || adminCode !== ADMIN_CODE)) {
       return res.status(403).json({ msg: 'Forbidden: Admins only' });
     }
     const { title, subject, days, salary, location, description, contact } = req.body;

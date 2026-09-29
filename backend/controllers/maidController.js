@@ -3,7 +3,7 @@ import AppliedMaid from '../models/AppliedMaid.js';
 import BookedMaid from '../models/BookedMaid.js';
 import jwt from 'jsonwebtoken';
 
-const ADMIN_CODE = process.env.ADMIN_CODE || 'choton2025';
+const ADMIN_CODE = process.env.ADMIN_CODE;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 async function isAdminFromReq(req){
@@ -17,7 +17,7 @@ async function isAdminFromReq(req){
     } catch (err) { }
   }
   const adminCode = req.body.adminCode || req.query.adminCode;
-  if (!isAdmin && adminCode === ADMIN_CODE) isAdmin = true;
+  if (!isAdmin && ADMIN_CODE && adminCode === ADMIN_CODE) isAdmin = true;
   return isAdmin;
 }
 

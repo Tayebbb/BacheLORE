@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const ADMIN_CODE = "choton2025";
-
 export default function AdminLogin() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -20,6 +18,7 @@ export default function AdminLogin() {
       if (res.ok && data.token) {
         localStorage.setItem("isAdmin", "true");
         localStorage.setItem("adminToken", data.token);
+        sessionStorage.setItem("adminCode", code);
         // set a fallback admin user id so AdminDashboard can post listings
         // backend expects an ownerId; admin actions use adminCode/JWT for authorization
         localStorage.setItem(
